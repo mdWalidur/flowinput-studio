@@ -28,12 +28,13 @@ export const lines = (text: string): string[] =>
     .map((l) => l.trim())
     .filter(Boolean);
 
+/** Sentence-ish units: newlines are treated as hard boundaries. */
 export const sentences = (text: string): string[] =>
   normalizeWhitespace(text)
-    .replace(/\n+/g, " ")
-    .split(/(?<=[.!?])\s+(?=[A-Z0-9“"'])/)
-    .map((s) => s.trim())
-    .filter((s) => s.length > 12);
+    .split("\n")
+    .flatMap((line) => line.split(/(?<=[.!?])\s+(?=[A-Z0-9“"'])/))
+    .map((s) => stripBullet(s.trim()).trim())
+    .filter((s) => s.length > 12 && !looksLikeHeading(s));
 
 const STOP_WORDS = new Set(
   `a about above after again against all am an and any are as at be because been before being below between both but by cannot could did do does doing down during each few for from further had has have having he her here hers him his how i if in into is it its just me more most my no nor not of off on once only or other our out over own same she should so some such than that the their them then there these they this those through to too under until up very was we were what when where which while who whom why will with you your than its it's don't`.split(
@@ -104,6 +105,16 @@ export function looksLikeHeading(line: string): boolean {
   if (line.endsWith(":")) return true;
   const letters = line.replace(/[^A-Za-z]/g, "");
   if (letters.length > 2 && letters === letters.toUpperCase()) return true;
+  // Short, punctuation-free label lines ("passive transport", "tonicity").
+  const wordsInLine = line.split(/\s+/).filter(Boolean);
+  if (
+    line.length <= 48 &&
+    wordsInLine.length <= 6 &&
+    !/[.!?,;]$/.test(line) &&
+    !/[.!?]/.test(line)
+  ) {
+    return true;
+  }
   return false;
 }
 
