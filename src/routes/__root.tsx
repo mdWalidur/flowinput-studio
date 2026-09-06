@@ -7,6 +7,7 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
+import { MotionConfig } from "motion/react";
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
@@ -129,9 +130,11 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
-      <Toaster position="bottom-right" richColors />
+      <MotionConfig reducedMotion="user">
+        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+        <Outlet />
+        <Toaster position="bottom-right" richColors />
+      </MotionConfig>
     </QueryClientProvider>
   );
 }

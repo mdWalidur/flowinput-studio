@@ -1,4 +1,13 @@
-import { Fragment, type ReactNode } from "react";
+import type { ReactNode } from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { renderInline as inline } from "@/lib/inline-markdown";
 
 /**
  * Minimal, safe Markdown preview.
@@ -9,6 +18,21 @@ import { Fragment, type ReactNode } from "react";
  */
 export function MarkdownView({ markdown }: { markdown: string }) {
   return <div className="prose-flow">{renderBlocks(markdown)}</div>;
+}
+
+function isTableRow(line: string): boolean {
+  return /^\s*\|.*\|\s*$/.test(line);
+}
+
+function isTableSeparatorRow(line: string): boolean {
+  const trimmed = line.trim();
+  if (!trimmed.includes("-")) return false;
+  return /^\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)+\|?$/.test(trimmed);
+}
+
+function splitTableRow(line: string): string[] {
+  const trimmed = line.trim().replace(/^\|/, "").replace(/\|$/, "");
+  return trimmed.split("|").map((cell) => cell.trim());
 }
 
 function renderBlocks(markdown: string): ReactNode[] {
@@ -42,6 +66,42 @@ function renderBlocks(markdown: string): ReactNode[] {
       continue;
     }
 
+    // GFM pipe table
+    if (isTableRow(line) && isTableSeparatorRow(lines[index + 1] ?? "")) {
+      const header = splitTableRow(line);
+      index += 2;
+      const rows: string[][] = [];
+      while (index < lines.length && isTableRow(lines[index] ?? "")) {
+        rows.push(splitTableRow(lines[index] ?? ""));
+        index++;
+      }
+      out.push(
+        <div key={key++} className="my-4 overflow-x-auto rounded-lg border border-border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                {header.map((cell, i) => (
+                  <TableHead key={i}>{inline(cell)}</TableHead>
+                ))}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rows.map((row, ri) => (
+                <TableRow key={ri}>
+                  {row.map((cell, ci) => (
+                    <TableCell key={ci} className="text-muted-foreground">
+                      {inline(cell)}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>,
+      );
+      continue;
+    }
+
     // Horizontal rule
     if (/^(-{3,}|\*{3,}|_{3,})$/.test(line.trim())) {
       out.push(<hr key={key++} className="my-6 border-border" />);
@@ -60,7 +120,7 @@ function renderBlocks(markdown: string): ReactNode[] {
           : level === 2
             ? "mt-6 font-display text-lg font-semibold first:mt-0"
             : "mt-5 font-display text-base font-semibold first:mt-0";
-      const Tag = (`h${Math.min(level + 1, 6)}` as unknown) as "h2";
+      const Tag = `h${Math.min(level + 1, 6)}` as unknown as "h2";
       out.push(
         <Tag key={key++} className={cls}>
           {content}
@@ -138,56 +198,4 @@ function renderBlocks(markdown: string): ReactNode[] {
   }
 
   return out;
-}
-
-/** Inline emphasis, code and links — all rendered as elements, never HTML. */
-function inline(text: string): ReactNode {
-  const pattern = /(`[^`]+`|\*\*[^*]+\*\*|__[^_]+__|\*[^*]+\*|_[^_]+_|\[[^\]]+\]\([^)\s]+\))/g;
-  const parts = text.split(pattern).filter((p) => p !== "");
-
-  return parts.map((part, i) => {
-    if (part.startsWith("`") && part.endsWith("`") && part.length > 2) {
-      return (
-        <code key={i} className="rounded bg-surface-2 px-1 py-0.5 font-mono text-[0.9em]">
-          {part.slice(1, -1)}
-        </code>
-      );
-    }
-    if (
-      (part.startsWith("**") && part.endsWith("**")) ||
-      (part.startsWith("__") && part.endsWith("__"))
-    ) {
-      return (
-        <strong key={i} className="font-semibold">
-          {part.slice(2, -2)}
-        </strong>
-      );
-    }
-    if (
-      (part.startsWith("*") && part.endsWith("*") && part.length > 2) ||
-      (part.startsWith("_") && part.endsWith("_") && part.length > 2)
-    ) {
-      return <em key={i}>{part.slice(1, -1)}</em>;
-    }
-    const link = /^\[([^\]]+)\]\(([^)\s]+)\)$/.exec(part);
-    if (link) {
-      const href = link[2] ?? "";
-      // Only allow safe schemes; anything else stays plain text.
-      if (/^(https?:\/\/|mailto:|\/)/i.test(href)) {
-        return (
-          <a
-            key={i}
-            href={href}
-            rel="noopener noreferrer nofollow"
-            target="_blank"
-            className="text-primary underline underline-offset-2"
-          >
-            {link[1]}
-          </a>
-        );
-      }
-      return <Fragment key={i}>{link[1]}</Fragment>;
-    }
-    return <Fragment key={i}>{part}</Fragment>;
-  });
 }

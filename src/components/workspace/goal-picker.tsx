@@ -1,13 +1,11 @@
 import { useRef } from "react";
-import { Check } from "lucide-react";
+import { Check, ArrowRight } from "lucide-react";
+
 import { GOALS } from "@/domain/goals";
 import type { GoalId } from "@/domain/types";
 import { GoalIcon } from "@/components/goal-icon";
 import { cn } from "@/lib/utils";
 
-/**
- * Accessible radio group: arrow keys move between goals, Space/Enter selects.
- */
 export function GoalPicker({
   value,
   onChange,
@@ -17,65 +15,116 @@ export function GoalPicker({
 }) {
   const refs = useRef<Array<HTMLButtonElement | null>>([]);
 
-  const move = (index: number, delta: number) => {
-    const next = (index + delta + GOALS.length) % GOALS.length;
-    const goal = GOALS[next];
-    if (!goal) return;
-    onChange(goal.id);
-    refs.current[next]?.focus();
+  const move = (
+    index: number,
+    direction: number,
+  ) => {
+    const nextIndex =
+      (index + direction + GOALS.length) %
+      GOALS.length;
+
+    const next = GOALS[nextIndex];
+
+    if (!next) return;
+
+    onChange(next.id);
+    refs.current[nextIndex]?.focus();
   };
 
   return (
-    <div role="radiogroup" aria-label="What would you like to do?" className="grid gap-3 sm:grid-cols-2">
+    <div
+      role="radiogroup"
+      aria-label="What would you like to do?"
+      className="divide-y divide-border border-y border-border"
+    >
       {GOALS.map((goal, index) => {
         const selected = value === goal.id;
+
         return (
           <button
             key={goal.id}
-            ref={(el) => {
-              refs.current[index] = el;
+            ref={(element) => {
+              refs.current[index] = element;
             }}
             type="button"
             role="radio"
             aria-checked={selected}
-            tabIndex={selected || (!value && index === 0) ? 0 : -1}
+            tabIndex={
+              selected ||
+              (!value && index === 0)
+                ? 0
+                : -1
+            }
             onClick={() => onChange(goal.id)}
-            onKeyDown={(e) => {
-              if (e.key === "ArrowRight" || e.key === "ArrowDown") {
-                e.preventDefault();
+            onKeyDown={(event) => {
+              if (
+                event.key === "ArrowDown" ||
+                event.key === "ArrowRight"
+              ) {
+                event.preventDefault();
                 move(index, 1);
               }
-              if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
-                e.preventDefault();
+
+              if (
+                event.key === "ArrowUp" ||
+                event.key === "ArrowLeft"
+              ) {
+                event.preventDefault();
                 move(index, -1);
               }
             }}
             className={cn(
-              "group relative h-full rounded-xl border border-border bg-surface p-4 text-left transition-all",
-              "hover:border-primary/40 hover:shadow-soft",
-              selected && "border-primary bg-primary/[0.04] shadow-soft",
+              "group grid w-full grid-cols-[44px_minmax(0,1fr)_auto] items-center gap-5 px-2 py-6 text-left transition-colors",
+              "hover:bg-secondary/55",
+              selected && "bg-secondary/70",
             )}
           >
-            <div className="flex items-start gap-3">
+            <span className="font-mono text-xs text-muted-foreground">
+              {String(index + 1).padStart(2, "0")}
+            </span>
+
+            <span className="flex min-w-0 items-center gap-4">
               <span
                 className={cn(
-                  "flex size-9 shrink-0 items-center justify-center rounded-lg bg-secondary text-secondary-foreground transition-colors",
-                  selected && "bg-primary text-primary-foreground",
+                  "flex size-10 shrink-0 items-center justify-center rounded-full border border-border transition-colors",
+                  selected &&
+                    "border-primary bg-primary text-primary-foreground",
                 )}
               >
-                <GoalIcon icon={goal.icon} className="size-4" />
+                <GoalIcon
+                  icon={goal.icon}
+                  className="size-4"
+                />
               </span>
-              <div className="min-w-0">
-                <p className="font-display text-[0.95rem] font-medium">{goal.label}</p>
-                <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                  {goal.tagline}
-                </p>
-              </div>
-              {selected && (
-                <Check className="ml-auto size-4 shrink-0 text-primary" aria-hidden="true" />
+
+              <span className="min-w-0">
+                <span className="block font-display text-xl tracking-tight">
+                  {goal.label}
+                </span>
+
+                <span className="mt-1 block max-w-2xl text-sm leading-6 text-muted-foreground">
+                  {goal.description}
+                </span>
+              </span>
+            </span>
+
+            <span className="flex items-center gap-3">
+              <span className="hidden text-xs text-muted-foreground sm:block">
+                {goal.tagline}
+              </span>
+
+              {selected ? (
+                <Check
+                  className="size-5 text-primary"
+                  aria-hidden="true"
+                />
+              ) : (
+                <ArrowRight
+                  className="size-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
+                  aria-hidden="true"
+                />
               )}
-            </div>
-            <p className="mt-3 text-sm text-muted-foreground">{goal.description}</p>
+            </span>
           </button>
         );
       })}

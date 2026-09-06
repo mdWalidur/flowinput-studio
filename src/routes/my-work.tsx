@@ -17,7 +17,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { MarkdownView } from "@/components/markdown-view";
+import { ResultBody } from "@/components/workspace/result/result-body";
 import { goalById } from "@/domain/goals";
 import { SOURCE_ENGINE_LABEL } from "@/domain/types";
 import { useClearWorkItems, useDeleteWorkItem, useWorkItems } from "@/hooks/use-work-items";
@@ -210,13 +210,7 @@ function MyWorkPage() {
 
                 {open && item.result && (
                   <div className="mt-4 max-h-96 overflow-auto rounded-lg border border-border bg-surface-2 p-4">
-                    {item.result.format === "md" ? (
-                      <MarkdownView markdown={item.result.output} />
-                    ) : (
-                      <pre className="whitespace-pre-wrap font-mono text-[13px] leading-relaxed">
-                        {item.result.output}
-                      </pre>
-                    )}
+                    <ResultBody result={item.result} sourceText={item.source.text} />
                   </div>
                 )}
               </article>

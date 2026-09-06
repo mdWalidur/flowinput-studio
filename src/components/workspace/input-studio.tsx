@@ -301,7 +301,7 @@ export function InputStudio({ source, onChange }: Props) {
       )}
 
       {source && (
-        <div className="space-y-2 rounded-lg border border-border bg-surface-2 px-3 py-2.5">
+        <div className="panel-flat space-y-2 px-3 py-2.5">
           <div className="flex flex-wrap items-center gap-2 text-sm">
             <Badge variant="secondary">{SOURCE_ENGINE_LABEL[source.engine]}</Badge>
             <span className="min-w-0 flex-1 truncate font-medium">{source.name}</span>
