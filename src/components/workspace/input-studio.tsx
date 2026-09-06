@@ -106,6 +106,7 @@ export function InputStudio({ source, onChange }: Props) {
         });
       } catch (err) {
         if (controller.signal.aborted) return;
+        console.error("extract failed", err);
         setError(
           err instanceof ExtractionError
             ? err.message
