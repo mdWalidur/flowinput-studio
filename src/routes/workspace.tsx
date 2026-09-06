@@ -211,7 +211,6 @@ function WorkspacePage() {
                 setGoalId(id);
                 setResult(null);
                 setSavedId(null);
-                void navigate({ to: "/workspace", search: { goal: id } });
               }}
             />
           </Section>
