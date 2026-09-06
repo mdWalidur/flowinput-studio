@@ -63,7 +63,9 @@ export async function extractPdf(file: File, signal?: AbortSignal): Promise<Extr
     else blocks.push(pageText);
   }
 
-  await (doc as unknown as { destroy: () => Promise<void> }).destroy();
+  const closable = doc as unknown as { destroy?: () => Promise<void>; cleanup?: () => void };
+  await closable.destroy?.();
+  closable.cleanup?.();
 
   const text = blocks.join("\n\n").trim();
 
