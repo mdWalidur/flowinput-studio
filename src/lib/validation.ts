@@ -4,34 +4,37 @@ import type { SupportedExtension } from "@/domain/types";
 /**
  * Centralized client-side validation.
  *
- * TODO(production): every rule here MUST be re-validated server-side before
- * storage or processing (file signature sniffing, size limits, malware
- * scanning, rate limiting per user/IP, audit logging of uploads).
+ * TODO(production): every rule here MUST be re-checked server-side before
+ * storage or processing — real file-signature sniffing, malware scanning,
+ * per-user/IP rate limiting, and audit logging of every upload.
  */
 
-export const MAX_FILE_BYTES = 5 * 1024 * 1024; // 5 MB
+export const MAX_FILE_BYTES = 10 * 1024 * 1024; // 10 MB
 export const MAX_TEXT_CHARS = 200_000;
+export const MIN_TEXT_CHARS = 40;
 
-export const BROWSER_PARSEABLE: SupportedExtension[] = ["txt", "md", "markdown"];
-export const SERVER_ONLY: SupportedExtension[] = ["pdf", "docx"];
-
-export const ACCEPTED_EXTENSIONS: SupportedExtension[] = [
-  ...BROWSER_PARSEABLE,
-  ...SERVER_ONLY,
-];
+export const ACCEPTED_EXTENSIONS: SupportedExtension[] = ["txt", "md", "markdown", "pdf", "docx"];
 
 export const ACCEPT_ATTRIBUTE = ".txt,.md,.markdown,.pdf,.docx";
 
-export type ValidationOk = {
-  ok: true;
-  extension: SupportedExtension;
-  requiresServerParsing: boolean;
+/** Extension → MIME types we consider consistent. Empty list = browsers vary. */
+const MIME_BY_EXTENSION: Record<SupportedExtension, string[]> = {
+  txt: ["text/plain", ""],
+  md: ["text/markdown", "text/x-markdown", "text/plain", ""],
+  markdown: ["text/markdown", "text/x-markdown", "text/plain", ""],
+  pdf: ["application/pdf", ""],
+  docx: [
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/zip",
+    "",
+  ],
 };
+
+export type ValidationOk = { ok: true; extension: SupportedExtension };
 export type ValidationError = { ok: false; message: string };
 export type ValidationResult = ValidationOk | ValidationError;
 
-export const extensionOf = (name: string): string =>
-  name.split(".").pop()?.toLowerCase() ?? "";
+export const extensionOf = (name: string): string => name.split(".").pop()?.toLowerCase() ?? "";
 
 export const formatBytes = (bytes: number): string => {
   if (bytes < 1024) return `${bytes} B`;
@@ -45,36 +48,38 @@ export function validateFile(file: File): ValidationResult {
   if (!ACCEPTED_EXTENSIONS.includes(ext as SupportedExtension)) {
     return {
       ok: false,
-      message: `“${file.name}” isn’t supported yet. Use TXT, Markdown, PDF or DOCX.`,
-    };
-  }
-
-  if (file.size === 0) {
-    return { ok: false, message: `“${file.name}” looks empty.` };
-  }
-
-  if (file.size > MAX_FILE_BYTES) {
-    return {
-      ok: false,
-      message: `“${file.name}” is ${formatBytes(file.size)}. The limit is ${formatBytes(
-        MAX_FILE_BYTES,
-      )}.`,
+      message: `“${file.name}” isn’t a file type we read. Use a .txt, .md, .pdf or .docx file.`,
     };
   }
 
   const extension = ext as SupportedExtension;
-  return {
-    ok: true,
-    extension,
-    requiresServerParsing: SERVER_ONLY.includes(extension),
-  };
+  const allowedMimes = MIME_BY_EXTENSION[extension];
+  const mime = (file.type || "").toLowerCase();
+
+  if (mime && !allowedMimes.includes(mime)) {
+    return {
+      ok: false,
+      message: `“${file.name}” doesn’t look like a real .${extension} file, so we didn’t open it.`,
+    };
+  }
+
+  if (file.size === 0) return { ok: false, message: `“${file.name}” is empty.` };
+
+  if (file.size > MAX_FILE_BYTES) {
+    return {
+      ok: false,
+      message: `“${file.name}” is ${formatBytes(file.size)}. The limit is ${formatBytes(MAX_FILE_BYTES)}.`,
+    };
+  }
+
+  return { ok: true, extension };
 }
 
 export const pastedTextSchema = z
   .string()
   .trim()
-  .min(40, "Add a little more text (at least 40 characters) so we can work with it.")
-  .max(MAX_TEXT_CHARS, "That’s longer than the current 200,000 character limit.");
+  .min(MIN_TEXT_CHARS, `Add a little more — at least ${MIN_TEXT_CHARS} characters.`)
+  .max(MAX_TEXT_CHARS, `That’s longer than the ${MAX_TEXT_CHARS.toLocaleString()} character limit.`);
 
 export const transformOptionsSchema = z.object({
   detail: z.enum(["concise", "standard", "detailed"]),

@@ -1,37 +1,35 @@
 /**
  * Core domain models for FlowInput.
  *
- * These entities are intentionally transport-agnostic so a future Creative
- * Studio (image/video generation) and authenticated cloud persistence can
- * reuse them without change.
+ * These entities are transport-agnostic on purpose, so authenticated cloud
+ * persistence and future studios (image/video) can reuse them unchanged.
  *
- * TODO(production): mirror these types in a server-side schema (database
- * tables + zod validators shared with server functions) once auth is added.
+ * TODO(production): mirror these types in a server-side schema (database tables
+ * + zod validators shared with server functions) once auth is added.
  */
 
-export type GoalId =
-  | "markdown"
-  | "study"
-  | "ai-context"
-  | "spec"
-  | "prompt";
+export type GoalId = "markdown" | "study" | "ai-context" | "spec" | "prompt";
 
-export type SourceKind = "text" | "file";
+export type SourceKind = "text" | "file" | "idea";
 
 export type SupportedExtension = "txt" | "md" | "markdown" | "pdf" | "docx";
+
+/** Which engine produced the text of a source document. */
+export type SourceEngine = "typed" | "plain-text" | "docx" | "pdf";
 
 export interface SourceDocument {
   id: string;
   kind: SourceKind;
-  /** Original file name, or a generated label for pasted text. */
+  /** Original file name, or a generated label for typed content. */
   name: string;
   extension: SupportedExtension | "text";
   mimeType: string;
   sizeBytes: number;
-  /** Extracted plain text. Empty when extraction is not available client-side. */
+  /** Extracted plain text or Markdown. */
   text: string;
-  /** True when the content could not be parsed in the browser (PDF/DOCX). */
-  requiresServerParsing: boolean;
+  engine: SourceEngine;
+  /** Non-fatal notes from reading the source, surfaced honestly in the UI. */
+  warnings: string[];
   createdAt: string;
 }
 
@@ -88,4 +86,11 @@ export const DEFAULT_OPTIONS: TransformOptions = {
   detail: "standard",
   includeMetadata: true,
   instructions: "",
+};
+
+export const SOURCE_ENGINE_LABEL: Record<SourceEngine, string> = {
+  typed: "Typed or pasted",
+  "plain-text": "Text file",
+  docx: "Word document",
+  pdf: "PDF",
 };

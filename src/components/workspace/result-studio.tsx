@@ -6,8 +6,8 @@ import { goalById } from "@/domain/goals";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { MarkdownView } from "@/components/markdown-view";
 import { copyToClipboard, downloadText } from "@/lib/download";
 
 interface Props {
@@ -21,21 +21,22 @@ interface Props {
 export function ResultStudio({ title, source, result, onSave, saved }: Props) {
   const [copied, setCopied] = useState(false);
   const goal = goalById(result.goalId);
+  const isMarkdown = result.format === "md";
 
   const handleCopy = async () => {
     const ok = await copyToClipboard(result.output);
     if (ok) {
       setCopied(true);
-      toast.success("Result copied to your clipboard");
+      toast.success("Copied to your clipboard");
       window.setTimeout(() => setCopied(false), 2000);
     } else {
-      toast.error("Copying was blocked. Select the text and copy manually.");
+      toast.error("Copying was blocked. Select the text and copy it manually.");
     }
   };
 
   const handleDownload = () => {
     downloadText(title, result.output, result.format);
-    toast.success(`Downloaded as .${result.format}`);
+    toast.success(`Saved as a .${result.format} file`);
   };
 
   return (
@@ -44,8 +45,8 @@ export function ResultStudio({ title, source, result, onSave, saved }: Props) {
         <Badge variant="secondary">{goal.label}</Badge>
         <span className="text-sm text-muted-foreground">
           {result.stats.inputWords.toLocaleString()} words in ·{" "}
-          {result.stats.outputWords.toLocaleString()} words out · ~
-          {result.stats.readingMinutes} min read
+          {result.stats.outputWords.toLocaleString()} out · about {result.stats.readingMinutes} min
+          to read
         </span>
         <div className="ml-auto flex flex-wrap gap-2">
           <Button type="button" variant="outline" size="sm" onClick={handleCopy}>
@@ -63,28 +64,45 @@ export function ResultStudio({ title, source, result, onSave, saved }: Props) {
           {onSave && (
             <Button type="button" size="sm" onClick={onSave} disabled={saved}>
               <Save className="size-4" aria-hidden="true" />
-              {saved ? "Saved" : "Save to history"}
+              {saved ? "Saved" : "Save"}
             </Button>
           )}
         </div>
       </div>
 
-      <Tabs defaultValue="output">
+      <Tabs defaultValue="result">
         <TabsList>
-          <TabsTrigger value="output">Result</TabsTrigger>
-          <TabsTrigger value="source">Source</TabsTrigger>
+          <TabsTrigger value="result">Result</TabsTrigger>
+          {isMarkdown && <TabsTrigger value="raw">Raw Markdown</TabsTrigger>}
+          <TabsTrigger value="source">Your source</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="output" className="mt-3">
-          <ScrollArea className="h-[26rem] rounded-xl border border-border bg-surface-2">
-            <pre className="whitespace-pre-wrap p-4 font-mono text-[13px] leading-relaxed">
-              {result.output}
-            </pre>
+        <TabsContent value="result" className="mt-3">
+          <ScrollArea className="h-[28rem] rounded-xl border border-border bg-surface">
+            <div className="p-5 sm:p-6">
+              {isMarkdown ? (
+                <MarkdownView markdown={result.output} />
+              ) : (
+                <pre className="whitespace-pre-wrap font-mono text-[13px] leading-relaxed">
+                  {result.output}
+                </pre>
+              )}
+            </div>
           </ScrollArea>
         </TabsContent>
 
+        {isMarkdown && (
+          <TabsContent value="raw" className="mt-3">
+            <ScrollArea className="h-[28rem] rounded-xl border border-border bg-surface-2">
+              <pre className="whitespace-pre-wrap p-4 font-mono text-[13px] leading-relaxed">
+                {result.output}
+              </pre>
+            </ScrollArea>
+          </TabsContent>
+        )}
+
         <TabsContent value="source" className="mt-3">
-          <ScrollArea className="h-[26rem] rounded-xl border border-border bg-surface-2">
+          <ScrollArea className="h-[28rem] rounded-xl border border-border bg-surface-2">
             <pre className="whitespace-pre-wrap p-4 font-mono text-[13px] leading-relaxed text-muted-foreground">
               {source.text}
             </pre>
@@ -92,10 +110,9 @@ export function ResultStudio({ title, source, result, onSave, saved }: Props) {
         </TabsContent>
       </Tabs>
 
-      <div>
-        <Separator className="mb-3" />
-        <p className="text-sm font-medium">What we did</p>
-        <ul className="mt-1.5 space-y-1 text-sm text-muted-foreground">
+      <div className="rounded-lg border border-border bg-surface-2 p-4">
+        <p className="text-sm font-medium">What we changed</p>
+        <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
           {result.notes.map((note) => (
             <li key={note} className="flex gap-2">
               <Check className="mt-0.5 size-3.5 shrink-0 text-success" aria-hidden="true" />
@@ -104,8 +121,8 @@ export function ResultStudio({ title, source, result, onSave, saved }: Props) {
           ))}
         </ul>
         <p className="mt-3 text-xs text-muted-foreground">
-          Transformations run locally with deterministic rules — no AI service is connected
-          in this version.
+          Prepared instantly on your device with fixed rules — no AI service is involved. Assisted
+          rewriting is planned as an optional extra later.
         </p>
       </div>
     </div>
