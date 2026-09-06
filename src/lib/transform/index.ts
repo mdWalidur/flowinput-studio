@@ -55,12 +55,9 @@ export function transform(
   const text = ctx.source.text.trim();
 
   if (!text) {
-    throw new TransformError(
-      ctx.source.requiresServerParsing
-        ? "This file type needs server-side text extraction, which isn’t connected yet. Paste the text instead."
-        : "There’s no readable text in this input yet.",
-    );
+    throw new TransformError("There's no readable text in this input yet.");
   }
+
 
   const { output, notes } = strategy.run(ctx);
 
