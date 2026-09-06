@@ -13,6 +13,7 @@ import {
   MAX_FILE_BYTES,
   MAX_TEXT_CHARS,
   MIN_TEXT_CHARS,
+  pastedTextSchema,
   extensionOf,
   formatBytes,
 } from "@/lib/validation";
@@ -61,6 +62,14 @@ export function InputStudio({ source, onChange }: Props) {
         onChange(null);
         return;
       }
+      if (kind === "text") {
+        const parsed = pastedTextSchema.safeParse(next);
+        if (!parsed.success) {
+          setError(parsed.error.issues[0]?.message ?? "Please add more text.");
+          onChange(null);
+          return;
+        }
+      }
       if (trimmed.length > MAX_TEXT_CHARS) {
         setError(`That's longer than the ${MAX_TEXT_CHARS.toLocaleString()} character limit.`);
         onChange(null);
@@ -78,6 +87,7 @@ export function InputStudio({ source, onChange }: Props) {
         text: next,
         engine: "typed",
         warnings: [],
+        meta: { characters: trimmed.length },
         createdAt: new Date().toISOString(),
       });
     },
@@ -106,6 +116,10 @@ export function InputStudio({ source, onChange }: Props) {
           text: extracted.text,
           engine: extracted.engine,
           warnings: extracted.warnings,
+          meta: {
+            ...(extracted.meta ?? {}),
+            characters: extracted.text.length,
+          },
           createdAt: new Date().toISOString(),
         });
       } catch (err) {
@@ -299,6 +313,17 @@ export function InputStudio({ source, onChange }: Props) {
               Replace
             </Button>
           </div>
+          <details className="text-xs text-muted-foreground">
+            <summary className="cursor-pointer select-none">Source details</summary>
+            <div className="mt-2 grid gap-1 sm:grid-cols-2">
+              <p>Type: {source.extension.toUpperCase()}</p>
+              <p>Size: {formatBytes(source.sizeBytes)}</p>
+              {typeof source.meta?.["pages"] === "number" && <p>Pages: {source.meta["pages"]}</p>}
+              {typeof source.meta?.["characters"] === "number" && (
+                <p>Extracted characters: {source.meta["characters"].toLocaleString()}</p>
+              )}
+            </div>
+          </details>
           {source.warnings.length > 0 && (
             <ul className="space-y-1 text-xs text-muted-foreground">
               {source.warnings.map((warning) => (

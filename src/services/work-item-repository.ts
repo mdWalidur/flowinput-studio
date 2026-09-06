@@ -43,6 +43,7 @@ const workItemSchema = z.object({
     text: z.string(),
     engine: z.enum(["typed", "plain-text", "docx", "pdf"]),
     warnings: z.array(z.string()),
+    meta: z.record(z.union([z.string(), z.number()])).optional(),
     createdAt: z.string(),
   }),
   options: z.object({
@@ -69,6 +70,8 @@ const workItemSchema = z.object({
 
 const isBrowser = () => typeof window !== "undefined";
 
+export class StorageError extends Error {}
+
 function readAll(): WorkItem[] {
   if (!isBrowser()) return [];
   try {
@@ -87,7 +90,13 @@ function readAll(): WorkItem[] {
 
 function writeAll(items: WorkItem[]): void {
   if (!isBrowser()) return;
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items.slice(0, MAX_ITEMS)));
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items.slice(0, MAX_ITEMS)));
+  } catch {
+    throw new StorageError(
+      "Your browser could not save this item. Storage may be full or unavailable.",
+    );
+  }
 }
 
 const truncate = (item: WorkItem): WorkItem => {
