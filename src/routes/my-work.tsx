@@ -23,6 +23,7 @@ import { SOURCE_ENGINE_LABEL } from "@/domain/types";
 import { useClearWorkItems, useDeleteWorkItem, useWorkItems } from "@/hooks/use-work-items";
 import { copyToClipboard, downloadText } from "@/lib/download";
 import { privateRouteMeta } from "@/lib/site";
+import { StorageError } from "@/services/work-item-repository";
 
 export const Route = createFileRoute("/my-work")({
   head: () =>
@@ -66,15 +67,23 @@ function MyWorkPage() {
                 <AlertDialogHeader>
                   <AlertDialogTitle>Remove everything you've saved?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This deletes all {items.length} saved items from this browser. It can't be undone.
+                    This deletes all {items.length} saved items from this browser. It can't be
+                    undone.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Keep them</AlertDialogCancel>
                   <AlertDialogAction
                     onClick={() => {
-                      clear.mutate();
-                      toast.success("Cleared");
+                      clear.mutate(undefined, {
+                        onSuccess: () => toast.success("Cleared"),
+                        onError: (error) =>
+                          toast.error(
+                            error instanceof StorageError
+                              ? error.message
+                              : "Could not clear saved work in this browser.",
+                          ),
+                      });
                     }}
                   >
                     Delete all
@@ -153,9 +162,11 @@ function MyWorkPage() {
                           size="sm"
                           onClick={async () => {
                             const ok = await copyToClipboard(item.result?.output ?? "");
-                            ok
-                              ? toast.success("Copied")
-                              : toast.error("Copying was blocked by your browser.");
+                            if (ok) {
+                              toast.success("Copied");
+                            } else {
+                              toast.error("Copying was blocked by your browser.");
+                            }
                           }}
                         >
                           <Copy className="size-4" aria-hidden="true" />
@@ -165,10 +176,10 @@ function MyWorkPage() {
                           type="button"
                           variant="outline"
                           size="sm"
-                          onClick={() =>
-                            item.result &&
-                            downloadText(item.title, item.result.output, item.result.format)
-                          }
+                          onClick={() => {
+                            if (!item.result) return;
+                            downloadText(item.title, item.result.output, item.result.format);
+                          }}
                         >
                           <Download className="size-4" aria-hidden="true" />
                           <span className="sr-only">Download result</span>
@@ -180,8 +191,15 @@ function MyWorkPage() {
                       variant="ghost"
                       size="sm"
                       onClick={() => {
-                        remove.mutate(item.id);
-                        toast.success("Deleted");
+                        remove.mutate(item.id, {
+                          onSuccess: () => toast.success("Deleted"),
+                          onError: (error) =>
+                            toast.error(
+                              error instanceof StorageError
+                                ? error.message
+                                : "Could not delete this item from browser storage.",
+                            ),
+                        });
                       }}
                     >
                       <Trash2 className="size-4" aria-hidden="true" />

@@ -30,6 +30,8 @@ export interface SourceDocument {
   engine: SourceEngine;
   /** Non-fatal notes from reading the source, surfaced honestly in the UI. */
   warnings: string[];
+  /** Optional extraction facts such as page count. */
+  meta?: Record<string, string | number>;
   createdAt: string;
 }
 

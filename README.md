@@ -1,44 +1,110 @@
-# FlowInput Studio
+# FlowInput
 
-Build the MVP for a production-quality Micro SaaS web app called "FlowInput" (working name). Core promise: "Input anything. Get what you need." This is not only a PDF converter and not only an AI creative tool. Users can upload or paste content, choose their goal, transform the content, preview the result, then copy or download it.
+FlowInput is a content preparation workspace: bring existing material, choose your goal, and get a usable output you can review, copy, download, and save.
 
-Build a polished responsive full-stack TypeScript app using the default stack, Tailwind and shadcn/ui. Prioritize security-minded architecture, stability, accessibility, fast perceived performance, clear loading/error states, and excellent UI/UX. Do not pretend unsupported AI integrations exist; use local/demo transformation behavior with clear architecture boundaries where a future backend/AI provider can be connected.
+## What FlowInput Does
 
-MVP features:
-1. Landing page with strong value proposition and feature overview.
-2. App workspace/dashboard.
-3. Input Studio: drag/drop upload area plus paste text. Support UI for PDF, DOCX, TXT, Markdown and plain text; validate type/size client-side and show friendly errors. For the first build, TXT/Markdown/plain text should genuinely flow through; unsupported server parsing for PDF/DOCX must be honestly indicated rather than faked.
-4. Goal selection cards: Convert to Markdown, Prepare for Study, Optimize for AI, Build Website/App Specification, Optimize a Prompt.
-5. Result Studio with source preview and output preview.
-6. Working deterministic demo transformations for text-based input:
-   - Markdown cleanup/normalization
-   - Study context wrapper and structured sections
-   - AI-ready context/prompt wrapper
-   - Website/app specification scaffold inferred from the input
-   - Prompt optimization template
-7. Copy result button and real .md or .txt download where applicable.
-8. Recent work/history stored locally for the MVP, with a clean repository/service boundary so authenticated cloud persistence can be added later.
-9. Basic project/work item model so future Creative Studio can reuse the same core entities.
+FlowInput helps users transform existing content into a next-step format:
 
-Information architecture: Landing, Workspace, New Transformation flow, History, Settings placeholder. Main workspace should guide: Input -> Choose Goal -> Configure -> Transform -> Review -> Copy/Download/Save.
+- notes to clean Markdown
+- source text to study material
+- source text to AI-ready context
+- rough product ideas to a website/app plan
+- rough prompts to clearer prompts
 
-Design direction: premium modern productivity tool, minimal but not empty, excellent spacing and hierarchy, subtle depth, professional typography, responsive mobile layout, accessible contrast. Avoid generic AI neon aesthetics and excessive gradients. The UI should make different user types feel welcome: students, developers, researchers, and image/video creators, without forcing any one workflow.
+## Product Philosophy
 
-Architecture: modular components, typed domain models, transformation strategy/adapter pattern keyed by goal, provider interfaces reserved for future AI services and external platform connections, centralized validation, safe error handling, no secrets in client code. Add clear TODO comments for production server-side file parsing, malware scanning, auth/authorization, rate limiting, object storage, background jobs, and audit logging.
+**INPUT → FLOW → OUTPUT**
 
-Seed the app with useful example text so the user can immediately test the complete flow. Build the actual pages and working interactions now, not just a static mockup.
+- **Input**: what you already have (text, file, prompt, idea)
+- **Flow**: deterministic preparation steps
+- **Output**: structured result for immediate use
 
+## Current MVP
 
+- Interactive landing page with a lightweight Flow demo
+- Workspace flow: input → goal → options → result
+- Local deterministic transformations (no AI provider required)
+- Result review with copy/download/save
+- My Work history stored in browser localStorage
 
+## Supported Inputs
 
+- Paste text
+- Start with an idea
+- Upload `.txt`, `.md`, `.markdown`, `.docx`, `.pdf` (text-based PDF)
 
-## Development
+## Transformation Goals
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+1. Convert to Markdown
+2. Prepare for Study
+3. Prepare for AI
+4. Turn into a Website/App Plan
+5. Improve a Prompt
+
+## Architecture
+
+- **Domain**: typed entities in `src/domain`
+- **Input & parsing**: `src/lib/parsing` and `src/lib/validation`
+- **Transformation engine**: strategy pattern in `src/lib/transform`
+- **Persistence**: repository boundary in `src/services/work-item-repository.ts`
+- **UI**: route-driven app with reusable components in `src/components`
+- **Extensibility**: provider interfaces in `src/lib/providers/ai-provider.ts`
+
+## Local Development
 
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
+npm install
 npm run dev
 ```
+
+### Quality checks
+
+```sh
+npm run lint
+npm run build
+npm run test
+```
+
+## Environment Variables
+
+- `VITE_SITE_URL` — canonical public base URL used for metadata, robots, and sitemap generation.
+
+## Security Model
+
+Current MVP security posture:
+
+- processing is local in-browser for current transformations
+- no client-side API keys
+- centralized file validation (type/size/MIME/signature checks where practical)
+- safe Markdown rendering (no raw HTML injection)
+- SSR error fallback with secure response headers
+
+Future production controls (not implemented yet):
+
+- authenticated API boundary
+- signed uploads and object storage
+- malware scanning
+- background processing jobs
+- provider access via server-side secrets only
+
+## Current Limitations
+
+- No OCR for scanned/image-only PDFs
+- No account system
+- No cloud sync
+- No live AI provider integrations
+- Saved work is local to the current browser and can be lost if browser data is cleared
+
+## Roadmap
+
+- Optional accounts and cloud persistence
+- Server-side document processing pipeline
+- Real provider adapters for AI transforms
+- Stronger audit and observability controls
+
+## Contributing
+
+1. Keep changes focused and architecture-aligned.
+2. Preserve honesty in product claims (no fake AI/OCR/cloud behavior).
+3. Validate with lint/build/tests before shipping.

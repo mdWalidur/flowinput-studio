@@ -1,4 +1,4 @@
-import { MAX_TEXT_CHARS, validateFile } from "@/lib/validation";
+import { MAX_TEXT_CHARS, validateFile, validateFileSignature } from "@/lib/validation";
 import { ExtractionError, type ExtractionResult } from "./types";
 
 export { ExtractionError } from "./types";
@@ -8,12 +8,11 @@ export type { ExtractionResult, ExtractionEngine } from "./types";
  * Single entry point the UI calls. It decides which engine to use, keeps heavy
  * engines lazily loaded, enforces the text ceiling and supports cancellation.
  */
-export async function extractDocument(
-  file: File,
-  signal?: AbortSignal,
-): Promise<ExtractionResult> {
+export async function extractDocument(file: File, signal?: AbortSignal): Promise<ExtractionResult> {
   const check = validateFile(file);
   if (!check.ok) throw new ExtractionError(check.message);
+  const signatureCheck = await validateFileSignature(file, check.extension);
+  if (!signatureCheck.ok) throw new ExtractionError(signatureCheck.message);
 
   let result: ExtractionResult;
 
@@ -53,7 +52,7 @@ export async function extractDocument(
 function normalizePlainText(text: string): string {
   return text
     .replace(/\r\n?/g, "\n")
-    .replace(/\u0000/g, "")
+    .replaceAll("\u0000", "")
     .replace(/[ \t]+$/gm, "")
     .trim();
 }

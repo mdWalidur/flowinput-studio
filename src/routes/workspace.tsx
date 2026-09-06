@@ -23,9 +23,11 @@ import {
 import { TransformError, transform } from "@/lib/transform";
 import { useSaveWorkItem } from "@/hooks/use-work-items";
 import { newId } from "@/services/work-item-repository";
+import { StorageError } from "@/services/work-item-repository";
 import { privateRouteMeta } from "@/lib/site";
 import { cn } from "@/lib/utils";
 import { SAMPLES } from "@/lib/sample-content";
+import { transformOptionsSchema } from "@/lib/validation";
 
 const isGoalId = (value: unknown): value is GoalId =>
   typeof value === "string" && GOALS.some((g) => g.id === value);
@@ -55,6 +57,7 @@ function WorkspacePage() {
   const [options, setOptions] = useState<TransformOptions>(DEFAULT_OPTIONS);
   const [result, setResult] = useState<TransformResult | null>(null);
   const [working, setWorking] = useState(false);
+  const [processingStage, setProcessingStage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [savedId, setSavedId] = useState<string | null>(null);
   const resultRef = useRef<HTMLDivElement>(null);
@@ -79,6 +82,7 @@ function WorkspacePage() {
       text: sample.text,
       engine: "typed",
       warnings: [],
+      meta: { characters: sample.text.length },
       createdAt: now,
     });
   }, [sampleFromUrl, source]);
@@ -102,6 +106,7 @@ function WorkspacePage() {
   const run = useCallback(() => {
     if (!source || !goalId) return;
     setWorking(true);
+    setProcessingStage("Preparing your result");
     setError(null);
     setResult(null);
     setSavedId(null);
@@ -109,7 +114,13 @@ function WorkspacePage() {
     // Yield a frame so the processing state paints before the (synchronous) work.
     window.setTimeout(() => {
       try {
-        const next = transform(goalId, { source, options });
+        const check = transformOptionsSchema.safeParse(options);
+        if (!check.success) {
+          throw new TransformError("Please review your preparation options and try again.");
+        }
+        setProcessingStage("Organizing your content");
+        const next = transform(goalId, { source, options: check.data });
+        setProcessingStage("Building your output");
         setResult(next);
         window.setTimeout(
           () => resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
@@ -123,6 +134,7 @@ function WorkspacePage() {
         );
       } finally {
         setWorking(false);
+        setProcessingStage(null);
       }
     }, 30);
   }, [source, goalId, options]);
@@ -147,9 +159,11 @@ function WorkspacePage() {
         setSavedId(item.id);
         toast.success("Saved to My work");
       },
-      onError: () =>
+      onError: (error) =>
         toast.error(
-          "We couldn't save that. Your browser storage may be full — try downloading it.",
+          error instanceof StorageError
+            ? error.message
+            : "We couldn't save that. Try downloading it instead.",
         ),
     });
   };
@@ -273,6 +287,7 @@ function WorkspacePage() {
 
           {working && (
             <div className="panel space-y-3 p-5" aria-live="polite">
+              <p className="text-sm font-medium">{processingStage ?? "Working…"}</p>
               <Skeleton className="h-5 w-40" />
               <Skeleton className="h-4 w-full" />
               <Skeleton className="h-4 w-11/12" />

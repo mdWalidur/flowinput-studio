@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
 import {
   ArrowRight,
   BookOpen,
@@ -15,7 +16,7 @@ import { GoalIcon } from "@/components/goal-icon";
 import { PageShell } from "@/components/page-shell";
 import { GOALS } from "@/domain/goals";
 import { SAMPLES } from "@/lib/sample-content";
-import { SITE, publicRouteMeta } from "@/lib/site";
+import { SITE, organizationJsonLd, publicRouteMeta, webApplicationJsonLd } from "@/lib/site";
 
 export const Route = createFileRoute("/")({
   head: () =>
@@ -34,9 +35,43 @@ const steps = [
   ["03", "Take the result", "Review it, copy it, download it, or save it locally."],
 ] as const;
 
+const DEMO_INPUTS = [
+  { id: "text", label: "Text", sampleId: "lecture" },
+  { id: "document", label: "Document", sampleId: "product" },
+  { id: "prompt", label: "Prompt / Idea", sampleId: "prompt" },
+] as const;
+
+const DEMO_GOALS = [
+  { id: "markdown", label: "Markdown" },
+  { id: "study", label: "Study" },
+  { id: "ai-context", label: "AI Context" },
+  { id: "spec", label: "App Plan" },
+  { id: "prompt", label: "Better Prompt" },
+] as const;
+
+const DEMO_OUTPUT: Record<(typeof DEMO_GOALS)[number]["id"], string> = {
+  markdown:
+    "# Cleaned Notes\n\n## Key points\n- Selective permeability\n- Active vs passive transport",
+  study:
+    "# Study Pack\n\n## Overview\n- Membrane transport controls exchange\n\n## Recall\n1. Explain osmosis.\n2. Compare active and passive transport.",
+  "ai-context":
+    "# Context Package\n\n## Instructions\n- Answer only from context\n- Cite chunk ids\n\nBEGIN_UNTRUSTED_CONTEXT\n[C1] ...",
+  spec: "# Product Overview\n\n## Problem\nManual booking causes no-shows.\n\n## Target Users\n- Clinic owner\n- Receptionist\n- Patient\n\n## MVP Features\n1. Self-booking\n2. Reminder system\n3. Attendance reports",
+  prompt:
+    "ROLE\nYou are a senior prompt engineer.\n\nTASK\nCreate a cinematic lighthouse reel prompt for Instagram.\n\nCONSTRAINTS\n- 10 seconds\n- Moody, hopeful tone",
+};
+
 function LandingPage() {
   return (
     <PageShell>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd()) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webApplicationJsonLd()) }}
+      />
       <section className="overflow-hidden border-b border-border bg-[#173c36] text-[#f7f3e9]">
         <div className="mx-auto grid max-w-6xl gap-12 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[1.05fr_.95fr] lg:items-center lg:gap-20">
           <div>
@@ -144,6 +179,7 @@ function LandingPage() {
             </div>
           ))}
         </div>
+        <FlowDemo />
       </section>
 
       <section className="border-y border-border bg-surface-2" aria-labelledby="outcomes">
@@ -237,5 +273,92 @@ function LandingPage() {
         </div>
       </section>
     </PageShell>
+  );
+}
+
+function FlowDemo() {
+  const [inputId, setInputId] = useState<(typeof DEMO_INPUTS)[number]["id"]>("document");
+  const [goalId, setGoalId] = useState<(typeof DEMO_GOALS)[number]["id"]>("spec");
+
+  const sample = useMemo(() => {
+    const selected = DEMO_INPUTS.find((i) => i.id === inputId);
+    return SAMPLES.find((s) => s.id === selected?.sampleId) ?? SAMPLES[0];
+  }, [inputId]);
+
+  return (
+    <div className="panel mt-10 p-6">
+      <p className="eyebrow">Try the flow in seconds</p>
+      <h3 className="mt-2 font-display text-2xl">Input → Flow → Output</h3>
+      <div className="mt-6 grid gap-6 lg:grid-cols-3">
+        <div>
+          <p
+            id="flow-demo-input-preview-label"
+            className="text-xs font-medium uppercase tracking-wide text-muted-foreground"
+          >
+            What do you have?
+          </p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {DEMO_INPUTS.map((input) => (
+              <button
+                key={input.id}
+                type="button"
+                aria-pressed={inputId === input.id}
+                onClick={() => setInputId(input.id)}
+                className={`rounded-md border px-3 py-1.5 text-sm ${inputId === input.id ? "border-primary bg-primary/10 text-foreground" : "border-border text-muted-foreground"}`}
+              >
+                {input.label}
+              </button>
+            ))}
+          </div>
+          <pre
+            aria-labelledby="flow-demo-input-preview-label"
+            className="mt-3 whitespace-pre-wrap rounded-lg border border-border bg-surface-2 p-3 text-xs text-muted-foreground"
+          >
+            {sample?.text.slice(0, 220)}
+            {(sample?.text.length ?? 0) > 220 ? "…" : ""}
+          </pre>
+        </div>
+        <div>
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            What do you need?
+          </p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {DEMO_GOALS.map((goal) => (
+              <button
+                key={goal.id}
+                type="button"
+                aria-pressed={goalId === goal.id}
+                onClick={() => setGoalId(goal.id)}
+                className={`rounded-md border px-3 py-1.5 text-sm ${goalId === goal.id ? "border-primary bg-primary/10 text-foreground" : "border-border text-muted-foreground"}`}
+              >
+                {goal.label}
+              </button>
+            ))}
+          </div>
+          <ol className="mt-3 space-y-1 text-sm text-muted-foreground">
+            <li>1. Understand</li>
+            <li>2. Organize</li>
+            <li>3. Prepare</li>
+          </ol>
+        </div>
+        <div>
+          <p
+            id="flow-demo-output-preview-label"
+            className="text-xs font-medium uppercase tracking-wide text-muted-foreground"
+          >
+            Preview output
+          </p>
+          <pre
+            aria-labelledby="flow-demo-output-preview-label"
+            className="mt-2 whitespace-pre-wrap rounded-lg border border-border bg-surface p-3 text-xs leading-relaxed"
+          >
+            {DEMO_OUTPUT[goalId]}
+          </pre>
+        </div>
+      </div>
+      <p className="mt-4 text-xs text-muted-foreground">
+        Marketing demo only. Workspace results are generated from your real input on device.
+      </p>
+    </div>
   );
 }
