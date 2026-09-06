@@ -25,13 +25,18 @@ import { useSaveWorkItem } from "@/hooks/use-work-items";
 import { newId } from "@/services/work-item-repository";
 import { privateRouteMeta } from "@/lib/site";
 import { cn } from "@/lib/utils";
+import { SAMPLES } from "@/lib/sample-content";
 
 const isGoalId = (value: unknown): value is GoalId =>
   typeof value === "string" && GOALS.some((g) => g.id === value);
+const isSampleId = (value: unknown): value is string =>
+  typeof value === "string" && SAMPLES.some((sample) => sample.id === value);
 
 export const Route = createFileRoute("/workspace")({
-  validateSearch: (search: Record<string, unknown>): { goal?: GoalId } =>
-    isGoalId(search["goal"]) ? { goal: search["goal"] } : {},
+  validateSearch: (search: Record<string, unknown>): { goal?: GoalId; sample?: string } => ({
+    ...(isGoalId(search["goal"]) ? { goal: search["goal"] } : {}),
+    ...(isSampleId(search["sample"]) ? { sample: search["sample"] } : {}),
+  }),
   head: () =>
     privateRouteMeta(
       "Workspace — FlowInput",
@@ -43,7 +48,7 @@ export const Route = createFileRoute("/workspace")({
 const STEPS = ["What do you have?", "What would you like to do?", "Set it up", "Your result"];
 
 function WorkspacePage() {
-  const { goal: goalFromUrl } = useSearch({ from: "/workspace" });
+  const { goal: goalFromUrl, sample: sampleFromUrl } = useSearch({ from: "/workspace" });
   const navigate = useNavigate();
   const [source, setSource] = useState<SourceDocument | null>(null);
   const [goalId, setGoalId] = useState<GoalId | null>(goalFromUrl ?? null);
@@ -58,6 +63,25 @@ function WorkspacePage() {
   useEffect(() => {
     if (goalFromUrl) setGoalId(goalFromUrl);
   }, [goalFromUrl]);
+
+  useEffect(() => {
+    if (source || !sampleFromUrl) return;
+    const sample = SAMPLES.find((item) => item.id === sampleFromUrl);
+    if (!sample) return;
+    const now = new Date().toISOString();
+    setSource({
+      id: newId(),
+      kind: "text",
+      name: sample.label,
+      extension: "text",
+      mimeType: "text/plain",
+      sizeBytes: new Blob([sample.text]).size,
+      text: sample.text,
+      engine: "typed",
+      warnings: [],
+      createdAt: now,
+    });
+  }, [sampleFromUrl, source]);
 
   const goal = goalId ? goalById(goalId) : null;
   const ready = Boolean(source?.text.trim() && goalId);
@@ -124,7 +148,9 @@ function WorkspacePage() {
         toast.success("Saved to My work");
       },
       onError: () =>
-        toast.error("We couldn't save that. Your browser storage may be full — try downloading it."),
+        toast.error(
+          "We couldn't save that. Your browser storage may be full — try downloading it.",
+        ),
     });
   };
 
@@ -289,7 +315,9 @@ function Section({
   return (
     <section className={cn("panel p-5 sm:p-6", muted && "opacity-70")} aria-label={title}>
       <div className="flex items-baseline gap-3">
-        <span className="font-mono text-xs text-muted-foreground">{String(index).padStart(2, "0")}</span>
+        <span className="font-mono text-xs text-muted-foreground">
+          {String(index).padStart(2, "0")}
+        </span>
         <h2 className="font-display text-xl font-medium tracking-tight">{title}</h2>
         {hint && <span className="ml-auto text-xs text-muted-foreground">{hint}</span>}
       </div>

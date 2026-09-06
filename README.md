@@ -28,15 +28,9 @@ Architecture: modular components, typed domain models, transformation strategy/a
 
 Seed the app with useful example text so the user can immediately test the complete flow. Build the actual pages and working interactions now, not just a static mockup.
 
-This project was built with [Lovable](https://lovable.dev).
 
-## Build with Lovable
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/3f58f644-f55b-469c-8145-9824edb7302b).
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
 
 ## Development
 

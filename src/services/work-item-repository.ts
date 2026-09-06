@@ -1,5 +1,6 @@
 import type { Project, WorkItem } from "@/domain/types";
 import { DEFAULT_PROJECT_ID } from "@/domain/types";
+import { z } from "zod";
 
 /**
  * Repository boundary for persistence.
@@ -26,6 +27,46 @@ const MAX_ITEMS = 50;
 /** Avoid filling localStorage with huge blobs. */
 const MAX_STORED_CHARS = 20_000;
 
+const workItemSchema = z.object({
+  id: z.string().min(1),
+  projectId: z.string().min(1),
+  title: z.string().min(1),
+  goalId: z.enum(["markdown", "study", "ai-context", "spec", "prompt"]),
+  status: z.enum(["draft", "completed", "failed"]),
+  source: z.object({
+    id: z.string().min(1),
+    kind: z.enum(["text", "file", "idea"]),
+    name: z.string().min(1),
+    extension: z.enum(["txt", "md", "markdown", "pdf", "docx", "text"]),
+    mimeType: z.string(),
+    sizeBytes: z.number().nonnegative(),
+    text: z.string(),
+    engine: z.enum(["typed", "plain-text", "docx", "pdf"]),
+    warnings: z.array(z.string()),
+    createdAt: z.string(),
+  }),
+  options: z.object({
+    detail: z.enum(["concise", "standard", "detailed"]),
+    includeMetadata: z.boolean(),
+    instructions: z.string().max(500).optional(),
+  }),
+  result: z
+    .object({
+      goalId: z.enum(["markdown", "study", "ai-context", "spec", "prompt"]),
+      output: z.string(),
+      format: z.enum(["md", "txt"]),
+      notes: z.array(z.string()),
+      stats: z.object({
+        inputWords: z.number().nonnegative(),
+        outputWords: z.number().nonnegative(),
+        readingMinutes: z.number().nonnegative(),
+      }),
+    })
+    .optional(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
 const isBrowser = () => typeof window !== "undefined";
 
 function readAll(): WorkItem[] {
@@ -35,7 +76,10 @@ function readAll(): WorkItem[] {
     if (!raw) return [];
     const parsed: unknown = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
-    return parsed as WorkItem[];
+    return parsed.flatMap((item) => {
+      const result = workItemSchema.safeParse(item);
+      return result.success ? [result.data] : [];
+    });
   } catch {
     return [];
   }
@@ -43,11 +87,7 @@ function readAll(): WorkItem[] {
 
 function writeAll(items: WorkItem[]): void {
   if (!isBrowser()) return;
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items.slice(0, MAX_ITEMS)));
-  } catch {
-    /* storage full or unavailable — history is best-effort in the MVP */
-  }
+  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items.slice(0, MAX_ITEMS)));
 }
 
 const truncate = (item: WorkItem): WorkItem => {
@@ -91,9 +131,7 @@ export class LocalWorkItemRepository implements WorkItemRepository {
   }
 
   async listProjects(): Promise<Project[]> {
-    return [
-      { id: DEFAULT_PROJECT_ID, name: "My workspace", createdAt: new Date(0).toISOString() },
-    ];
+    return [{ id: DEFAULT_PROJECT_ID, name: "My workspace", createdAt: new Date(0).toISOString() }];
   }
 }
 

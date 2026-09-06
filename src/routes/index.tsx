@@ -1,247 +1,237 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, FileText, Lock, MousePointerClick, ShieldCheck, Zap } from "lucide-react";
-import { PageShell } from "@/components/page-shell";
-import { Button } from "@/components/ui/button";
+import {
+  ArrowRight,
+  BookOpen,
+  Check,
+  FileText,
+  LockKeyhole,
+  MousePointer2,
+  Sparkles,
+  WandSparkles,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { GoalIcon } from "@/components/goal-icon";
+import { PageShell } from "@/components/page-shell";
 import { GOALS } from "@/domain/goals";
 import { SAMPLES } from "@/lib/sample-content";
-import { SITE, organizationJsonLd, publicRouteMeta, webApplicationJsonLd } from "@/lib/site";
+import { SITE, publicRouteMeta } from "@/lib/site";
 
 export const Route = createFileRoute("/")({
   head: () =>
     publicRouteMeta({
       path: "/",
-      title: "FlowInput — bring your content, choose what you need back",
+      title: "FlowInput — turn rough material into something useful",
       description:
-        "Open a Word file, a text-based PDF, Markdown or plain notes — or just paste them — and get clean Markdown, a study pack, an AI brief, a product plan or a sharper prompt. Runs in your browser.",
+        "FlowInput turns notes, documents and half-formed ideas into clean Markdown, study packs, AI briefs, product plans and sharper prompts in your browser.",
     }),
   component: LandingPage,
 });
 
-const SCENARIOS = [
-  {
-    who: "Students and researchers",
-    line: "A dense chapter becomes an outline, the terms worth knowing, and questions to test yourself with.",
-  },
-  {
-    who: "Developers and makers",
-    line: "Messy notes become tidy Markdown, or a first product plan with pages, data and a rough order of work.",
-  },
-  {
-    who: "Writers and creators",
-    line: "A half-formed request becomes a clear, specific brief you can hand to an assistant or a collaborator.",
-  },
-];
-
-const TRUST = [
-  {
-    icon: Lock,
-    title: "No account, no upload",
-    body: "Files are read inside your browser. Nothing is sent to a server, so there is nothing for us to keep.",
-  },
-  {
-    icon: Zap,
-    title: "Instant, and predictable",
-    body: "Results come from fixed rules, not a model — the same input gives you the same output every time.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Honest about limits",
-    body: "Scanned PDFs have no text to read, and we say so instead of quietly returning something empty.",
-  },
-];
+const steps = [
+  ["01", "Bring the raw material", "Paste notes, describe an idea, or open a text-based document."],
+  ["02", "Choose the outcome", "Pick the format that matches what you need next."],
+  ["03", "Take the result", "Review it, copy it, download it, or save it locally."],
+] as const;
 
 function LandingPage() {
   return (
     <PageShell>
-      <script
-        type="application/ld+json"
-        // Static, first-party structured data — no user input is interpolated.
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify([organizationJsonLd(), webApplicationJsonLd()]),
-        }}
-      />
-
-      <section className="relative overflow-hidden border-b border-border paper-lines">
-        <div className="mx-auto w-full max-w-5xl px-4 py-16 sm:px-6 sm:py-24">
-          <p className="eyebrow">A content preparation workspace</p>
-          <h1 className="mt-4 max-w-3xl font-display text-4xl font-medium leading-[1.08] tracking-tight sm:text-6xl">
-            Bring your content. Choose what you need back.
-          </h1>
-          <p className="mt-5 max-w-xl text-lg text-muted-foreground">
-            {SITE.name} takes the notes, documents and half-ideas you already have and turns them
-            into something usable — structured, readable and ready to hand on.
-          </p>
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            <Button asChild size="lg">
-              <Link to="/workspace">
-                Start something
-                <ArrowRight className="size-4" aria-hidden="true" />
-              </Link>
-            </Button>
-            <Button asChild variant="outline" size="lg">
-              <Link to="/workspace" search={{ goal: "study" }}>
-                Try it with sample notes
-              </Link>
-            </Button>
+      <section className="overflow-hidden border-b border-border bg-[#173c36] text-[#f7f3e9]">
+        <div className="mx-auto grid max-w-6xl gap-12 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[1.05fr_.95fr] lg:items-center lg:gap-20">
+          <div>
+            <Badge className="border-white/20 bg-white/10 text-[#f7f3e9] hover:bg-white/10">
+              A calmer first step
+            </Badge>
+            <h1 className="mt-6 max-w-3xl font-display text-5xl font-medium leading-[0.98] tracking-tight sm:text-7xl">
+              Start with the mess. Leave with momentum.
+            </h1>
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-[#d7e1d7]">
+              {SITE.name} turns the notes, documents and half-ideas you already have into a clear
+              next version — ready to read, share, build from or hand to an assistant.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Button asChild size="lg" className="bg-[#e18b5a] text-[#1d2923] hover:bg-[#eda477]">
+                <Link to="/workspace">
+                  Open the workspace <ArrowRight className="size-4" aria-hidden="true" />
+                </Link>
+              </Button>
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="border-white/25 bg-transparent text-[#f7f3e9] hover:bg-white/10 hover:text-white"
+              >
+                <Link to="/workspace" search={{ goal: "study", sample: "lecture" }}>
+                  Try sample notes
+                </Link>
+              </Button>
+            </div>
+            <div className="mt-7 flex flex-wrap gap-x-5 gap-y-2 text-sm text-[#b9d0c2]">
+              <span className="flex items-center gap-2">
+                <LockKeyhole className="size-4" /> Runs in your browser
+              </span>
+              <span className="flex items-center gap-2">
+                <Sparkles className="size-4" /> No account required
+              </span>
+            </div>
           </div>
-          <p className="mt-4 text-sm text-muted-foreground">
-            Free to use, nothing to install, and your content never leaves your browser.
-          </p>
+
+          <div className="relative">
+            <div className="absolute -inset-8 rounded-full bg-[#e18b5a]/15 blur-3xl" />
+            <div className="relative rounded-2xl border border-white/15 bg-[#f7f3e9] p-4 text-[#26342e] shadow-2xl sm:p-6">
+              <div className="flex items-center justify-between border-b border-[#d9d4c8] pb-4">
+                <div className="flex items-center gap-2 text-sm font-medium">
+                  <WandSparkles className="size-4 text-[#b45e38]" /> Your next version
+                </div>
+                <span className="font-mono text-[11px] text-[#77817a]">FLOW / 03</span>
+              </div>
+              <div className="grid gap-3 py-5 sm:grid-cols-[.8fr_1.2fr]">
+                <div className="rounded-xl bg-[#e8e5da] p-4">
+                  <p className="font-mono text-[10px] uppercase tracking-[.16em] text-[#77817a]">
+                    Input
+                  </p>
+                  <p className="mt-4 text-sm leading-relaxed text-[#66706a]">
+                    “A booking tool for small clinics. Receptionists use WhatsApp. No-shows cost
+                    money…”
+                  </p>
+                  <div className="mt-5 flex gap-1">
+                    <span className="h-1.5 w-10 rounded-full bg-[#b8c7bb]" />
+                    <span className="h-1.5 w-16 rounded-full bg-[#b8c7bb]" />
+                  </div>
+                </div>
+                <div className="rounded-xl bg-white p-4 shadow-sm">
+                  <p className="font-mono text-[10px] uppercase tracking-[.16em] text-[#b45e38]">
+                    Product plan
+                  </p>
+                  <h2 className="mt-4 font-display text-xl">A booking flow people can trust</h2>
+                  <ul className="mt-4 space-y-2 text-sm text-[#66706a]">
+                    {[
+                      "Users and roles",
+                      "MVP requirements",
+                      "Proposed screens",
+                      "Open questions",
+                    ].map((item) => (
+                      <li key={item} className="flex items-center gap-2">
+                        <Check className="size-3.5 text-[#2c8062]" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 border-t border-[#d9d4c8] pt-4 text-xs text-[#77817a]">
+                <MousePointer2 className="size-3.5" /> Review, copy or download when it feels right.
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-5xl px-4 py-16 sm:px-6" aria-labelledby="concept">
-        <h2 id="concept" className="font-display text-2xl font-medium tracking-tight sm:text-3xl">
-          Two questions, one useful result
-        </h2>
-        <div className="mt-8 grid gap-4 md:grid-cols-[1fr_auto_1fr] md:items-center">
-          <div className="panel p-5">
-            <p className="eyebrow">Step one</p>
-            <h3 className="mt-2 font-display text-lg font-medium">What do you have?</h3>
-            <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-              <li>A Word document or a text-based PDF</li>
-              <li>Markdown or a plain text file</li>
-              <li>Text you paste straight in</li>
-              <li>Or just an idea, described in a sentence</li>
-            </ul>
-          </div>
-          <ArrowRight
-            className="mx-auto hidden size-5 text-muted-foreground md:block"
-            aria-hidden="true"
-          />
-          <div className="panel p-5">
-            <p className="eyebrow">Step two</p>
-            <h3 className="mt-2 font-display text-lg font-medium">What would you like to do?</h3>
-            <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-              {GOALS.map((goal) => (
-                <li key={goal.id} className="flex items-center gap-2">
-                  <GoalIcon icon={goal.icon} className="size-3.5 text-primary" />
-                  {goal.label}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      <section
-        className="border-y border-border bg-surface-2"
-        aria-labelledby="examples"
-      >
-        <div className="mx-auto w-full max-w-5xl px-4 py-16 sm:px-6">
-          <h2 id="examples" className="font-display text-2xl font-medium tracking-tight sm:text-3xl">
-            Start from something real
+      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24" aria-labelledby="flow">
+        <div className="max-w-2xl">
+          <p className="eyebrow">A useful loop</p>
+          <h2 id="flow" className="mt-3 font-display text-3xl tracking-tight sm:text-4xl">
+            Less formatting. More moving forward.
           </h2>
-          <p className="mt-2 max-w-xl text-muted-foreground">
-Each of these waits for you in the workspace as a one-tap example, so you can see a
-            finished result before you bring your own material.
-          </p>
-          <div className="mt-8 grid gap-4 sm:grid-cols-3">
-            {SAMPLES.map((sample, index) => (
-              <article key={sample.id} className="panel flex flex-col p-5">
-                <Badge variant="secondary" className="w-fit">
-                  Example {index + 1}
-                </Badge>
-                <h3 className="mt-3 font-display text-lg font-medium">{sample.label}</h3>
-                <p className="mt-1.5 flex-1 text-sm text-muted-foreground">{sample.hint}</p>
-                <p className="mt-4 line-clamp-3 border-l-2 border-border pl-3 font-mono text-xs text-muted-foreground">
-                  {sample.text.slice(0, 160)}…
-                </p>
-                <Button asChild variant="outline" size="sm" className="mt-4 w-fit">
-                  <Link to="/workspace">
-                    <MousePointerClick className="size-4" aria-hidden="true" />
-                    Use this example
-                  </Link>
-                </Button>
-              </article>
-            ))}
-          </div>
         </div>
-      </section>
-
-      <section className="mx-auto w-full max-w-5xl px-4 py-16 sm:px-6" aria-labelledby="who">
-        <h2 id="who" className="font-display text-2xl font-medium tracking-tight sm:text-3xl">
-          Who it's for
-        </h2>
-        <div className="mt-8 grid gap-6 sm:grid-cols-3">
-          {SCENARIOS.map((scenario) => (
-            <div key={scenario.who}>
-              <h3 className="font-display text-lg font-medium">{scenario.who}</h3>
-              <p className="mt-2 text-sm text-muted-foreground">{scenario.line}</p>
+        <div className="mt-10 grid gap-4 md:grid-cols-3">
+          {steps.map(([number, title, body]) => (
+            <div key={number} className="panel p-6">
+              <span className="font-mono text-xs text-brand">{number}</span>
+              <h3 className="mt-8 font-display text-xl">{title}</h3>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{body}</p>
             </div>
           ))}
         </div>
       </section>
 
-      <section
-        className="border-y border-border bg-surface-2"
-        aria-labelledby="how"
-      >
-        <div className="mx-auto w-full max-w-5xl px-4 py-16 sm:px-6">
-          <h2 id="how" className="font-display text-2xl font-medium tracking-tight sm:text-3xl">
-            How it works
-          </h2>
-          <ol className="mt-8 grid gap-6 sm:grid-cols-4">
-            {[
-              { step: "Bring it in", body: "Drop a file, paste text, or describe an idea." },
-              { step: "Say what you need", body: "Pick one of five outcomes in plain language." },
-              { step: "Adjust a little", body: "Only the choices that matter for that outcome." },
-              { step: "Take it away", body: "Read it, copy it, download it, or save it for later." },
-            ].map((item, index) => (
-              <li key={item.step}>
-                <span className="font-mono text-xs text-muted-foreground">
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-                <h3 className="mt-1 font-display text-lg font-medium">{item.step}</h3>
-                <p className="mt-1.5 text-sm text-muted-foreground">{item.body}</p>
-              </li>
-            ))}
-          </ol>
-        </div>
-      </section>
-
-      <section className="mx-auto w-full max-w-5xl px-4 py-16 sm:px-6" aria-labelledby="trust">
-        <h2 id="trust" className="font-display text-2xl font-medium tracking-tight sm:text-3xl">
-          What you can count on
-        </h2>
-        <div className="mt-8 grid gap-4 sm:grid-cols-3">
-          {TRUST.map((item) => (
-            <div key={item.title} className="panel p-5">
-              <item.icon className="size-5 text-primary" aria-hidden="true" />
-              <h3 className="mt-3 font-display text-lg font-medium">{item.title}</h3>
-              <p className="mt-1.5 text-sm text-muted-foreground">{item.body}</p>
+      <section className="border-y border-border bg-surface-2" aria-labelledby="outcomes">
+        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
+          <div className="flex flex-wrap items-end justify-between gap-6">
+            <div>
+              <p className="eyebrow">Five ways to begin</p>
+              <h2 id="outcomes" className="mt-3 font-display text-3xl tracking-tight sm:text-4xl">
+                Choose the shape of the answer.
+              </h2>
             </div>
-          ))}
+            <Link
+              className="text-sm font-medium text-primary underline-offset-4 hover:underline"
+              to="/workspace"
+            >
+              See all in workspace <ArrowRight className="ml-1 inline size-4" />
+            </Link>
+          </div>
+          <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            {GOALS.map((goal) => (
+              <Link
+                key={goal.id}
+                to="/workspace"
+                search={{ goal: goal.id }}
+                className="group rounded-xl border border-border bg-surface p-5 transition hover:-translate-y-1 hover:border-primary/40 hover:shadow-lifted"
+              >
+                <GoalIcon icon={goal.icon} className="size-5 text-primary" />
+                <h3 className="mt-8 font-display text-lg leading-tight">{goal.label}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{goal.tagline}</p>
+              </Link>
+            ))}
+          </div>
         </div>
-        <p className="mt-6 max-w-2xl text-sm text-muted-foreground">
-          You keep the rights to whatever you bring, and you're responsible for having permission to
-          use it. Read the{" "}
-          <Link to="/terms" className="text-primary underline underline-offset-2">
-            terms
-          </Link>{" "}
-          and{" "}
-          <Link to="/privacy" className="text-primary underline underline-offset-2">
-            privacy note
-          </Link>
-          .
-        </p>
       </section>
 
-      <section className="border-t border-border paper-lines">
-        <div className="mx-auto w-full max-w-5xl px-4 py-16 text-center sm:px-6 sm:py-20">
-          <FileText className="mx-auto size-6 text-primary" aria-hidden="true" />
-          <h2 className="mt-4 font-display text-3xl font-medium tracking-tight sm:text-4xl">
-            Find out what your notes are hiding
-          </h2>
-          <p className="mx-auto mt-3 max-w-lg text-muted-foreground">
-            Open the workspace, paste anything, and see a finished result in a few seconds.
-          </p>
-          <Button asChild size="lg" className="mt-7">
+      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24" aria-labelledby="examples">
+        <div className="grid gap-10 lg:grid-cols-[.8fr_1.2fr] lg:items-start">
+          <div>
+            <p className="eyebrow">Start with a real example</p>
+            <h2 id="examples" className="mt-3 font-display text-3xl tracking-tight sm:text-4xl">
+              You do not need a blank page.
+            </h2>
+            <p className="mt-4 max-w-md leading-relaxed text-muted-foreground">
+              Pick a sample to see the complete flow, then replace it with your own material. No
+              setup, no account, no upload.
+            </p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-3">
+            {SAMPLES.map((sample) => (
+              <Link
+                key={sample.id}
+                to="/workspace"
+                search={{
+                  goal:
+                    sample.id === "lecture" ? "study" : sample.id === "product" ? "spec" : "prompt",
+                  sample: sample.id,
+                }}
+                className="panel group p-5 hover:border-primary/40"
+              >
+                <div className="flex items-center justify-between">
+                  <FileText className="size-5 text-brand" />
+                  <ArrowRight className="size-4 text-muted-foreground transition group-hover:translate-x-1" />
+                </div>
+                <h3 className="mt-8 font-display text-lg">{sample.label}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">{sample.hint}</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-t border-border bg-[#e8e5da]" aria-labelledby="privacy">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-6 px-4 py-12 sm:px-6">
+          <div className="flex items-start gap-4">
+            <BookOpen className="mt-1 size-5 text-primary" />
+            <div>
+              <h2 id="privacy" className="font-display text-xl">
+                Your material stays yours.
+              </h2>
+              <p className="mt-1 max-w-xl text-sm text-muted-foreground">
+                Text transformations happen locally. Saved work stays in this browser, and
+                unsupported files are described honestly instead of being sent somewhere unexpected.
+              </p>
+            </div>
+          </div>
+          <Button asChild>
             <Link to="/workspace">
-              Start something
-              <ArrowRight className="size-4" aria-hidden="true" />
+              Make a first pass <ArrowRight className="size-4" />
             </Link>
           </Button>
         </div>

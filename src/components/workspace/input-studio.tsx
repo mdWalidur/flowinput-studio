@@ -39,6 +39,10 @@ export function InputStudio({ source, onChange }: Props) {
 
   useEffect(() => () => abortRef.current?.abort(), []);
 
+  useEffect(() => {
+    setText(source?.text ?? "");
+  }, [source?.id, source?.text]);
+
   const minChars = mode === "idea" ? MIN_IDEA_CHARS : MIN_TEXT_CHARS;
 
   const commitText = useCallback(
@@ -225,7 +229,13 @@ export function InputStudio({ source, onChange }: Props) {
                 <p className="mt-1 text-xs text-muted-foreground">
                   Large PDFs take a moment. You can stop at any time.
                 </p>
-                <Button type="button" variant="outline" size="sm" className="mt-4" onClick={cancelReading}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="mt-4"
+                  onClick={cancelReading}
+                >
                   <X className="size-4" aria-hidden="true" />
                   Cancel
                 </Button>
@@ -293,7 +303,10 @@ export function InputStudio({ source, onChange }: Props) {
             <ul className="space-y-1 text-xs text-muted-foreground">
               {source.warnings.map((warning) => (
                 <li key={warning} className="flex gap-1.5">
-                  <AlertTriangle className="mt-0.5 size-3 shrink-0 text-warning" aria-hidden="true" />
+                  <AlertTriangle
+                    className="mt-0.5 size-3 shrink-0 text-warning"
+                    aria-hidden="true"
+                  />
                   <span>{warning}</span>
                 </li>
               ))}

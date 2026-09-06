@@ -29,58 +29,60 @@ export async function extractPdf(file: File, signal?: AbortSignal): Promise<Extr
     );
   }
 
-  const warnings: string[] = [];
-  const pageCount = doc.numPages;
-  const pagesToRead = Math.min(pageCount, MAX_PAGES);
-  if (pageCount > MAX_PAGES) {
-    warnings.push(`Only the first ${MAX_PAGES} of ${pageCount} pages were read.`);
-  }
-
-  const blocks: string[] = [];
-  let emptyPages = 0;
-
-  for (let pageNumber = 1; pageNumber <= pagesToRead; pageNumber++) {
-    assertNotAborted(signal);
-    const page = await doc.getPage(pageNumber);
-    const content = await page.getTextContent();
-
-    // Rebuild lines from item positions so paragraph structure survives.
-    let line = "";
-    const lines: string[] = [];
-    for (const item of content.items) {
-      if (!("str" in item)) continue;
-      line += item.str;
-      if (item.hasEOL) {
-        lines.push(line);
-        line = "";
-      }
-    }
-    if (line) lines.push(line);
-    page.cleanup();
-
-    const pageText = joinLines(lines);
-    if (!pageText.trim()) emptyPages++;
-    else blocks.push(pageText);
-  }
-
   const closable = doc as unknown as { destroy?: () => Promise<void>; cleanup?: () => void };
-  await closable.destroy?.();
-  closable.cleanup?.();
+  try {
+    const warnings: string[] = [];
+    const pageCount = doc.numPages;
+    const pagesToRead = Math.min(pageCount, MAX_PAGES);
+    if (pageCount > MAX_PAGES) {
+      warnings.push(`Only the first ${MAX_PAGES} of ${pageCount} pages were read.`);
+    }
 
-  const text = blocks.join("\n\n").trim();
+    const blocks: string[] = [];
+    let emptyPages = 0;
 
-  if (!text) {
-    throw new ExtractionError(
-      "This PDF has no selectable text — it looks like a scan or photo. Reading scanned pages needs OCR, which isn’t available yet. Paste the text instead.",
-    );
+    for (let pageNumber = 1; pageNumber <= pagesToRead; pageNumber++) {
+      assertNotAborted(signal);
+      const page = await doc.getPage(pageNumber);
+      const content = await page.getTextContent();
+
+      // Rebuild lines from item positions so paragraph structure survives.
+      let line = "";
+      const lines: string[] = [];
+      for (const item of content.items) {
+        if (!("str" in item)) continue;
+        line += item.str;
+        if (item.hasEOL) {
+          lines.push(line);
+          line = "";
+        }
+      }
+      if (line) lines.push(line);
+      page.cleanup();
+
+      const pageText = joinLines(lines);
+      if (!pageText.trim()) emptyPages++;
+      else blocks.push(pageText);
+    }
+
+    const text = blocks.join("\n\n").trim();
+
+    if (!text) {
+      throw new ExtractionError(
+        "This PDF has no selectable text — it looks like a scan or photo. Reading scanned pages needs OCR, which isn’t available yet. Paste the text instead.",
+      );
+    }
+    if (emptyPages > 0) {
+      warnings.push(
+        `${emptyPages} page${emptyPages === 1 ? "" : "s"} had no selectable text and were skipped (likely scanned images).`,
+      );
+    }
+
+    return { text, engine: "pdf", warnings, meta: { pages: pageCount } };
+  } finally {
+    await closable.destroy?.();
+    closable.cleanup?.();
   }
-  if (emptyPages > 0) {
-    warnings.push(
-      `${emptyPages} page${emptyPages === 1 ? "" : "s"} had no selectable text and were skipped (likely scanned images).`,
-    );
-  }
-
-  return { text, engine: "pdf", warnings, meta: { pages: pageCount } };
 }
 
 /** Merge hard-wrapped PDF lines back into paragraphs. */
