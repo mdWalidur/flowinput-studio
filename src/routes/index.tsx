@@ -514,7 +514,7 @@ function FlowDemo() {
             </div>
 
             <p className="mt-5 text-sm leading-7 text-muted-foreground">
-              {sample.text}
+              {sample?.text ?? ""}
             </p>
           </div>
         </div>

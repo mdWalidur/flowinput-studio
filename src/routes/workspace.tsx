@@ -174,9 +174,13 @@ function WorkspacePage() {
 
         setProcessingStage("Organizing your content");
 
+        const { instructions, ...validatedOptions } = check.data;
         const next = transform(goalId, {
           source,
-          options: check.data,
+          options:
+            instructions === undefined
+              ? validatedOptions
+              : { ...validatedOptions, instructions },
         });
 
         setProcessingStage("Building your output");
