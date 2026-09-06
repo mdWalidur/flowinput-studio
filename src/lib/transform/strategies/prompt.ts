@@ -78,7 +78,7 @@ export const promptStrategy: TransformStrategy = {
       text,
       "",
       "REQUIRED DETAILS TO HONOUR",
-      ...(MEDIUM_GUIDANCE[medium] ?? MEDIUM_GUIDANCE.general).map((g) => `- ${g}`),
+      ...(MEDIUM_GUIDANCE[medium] ?? MEDIUM_GUIDANCE["general"] ?? []).map((g) => `- ${g}`),
       ...(details.length ? [`- Keep these specifics: ${details.join(", ")}`] : []),
       "",
       "CONSTRAINTS",

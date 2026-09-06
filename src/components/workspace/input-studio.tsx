@@ -37,7 +37,7 @@ export function InputStudio({ source, onChange }: Props) {
       setText(next);
       const parsed = pastedTextSchema.safeParse(next);
       if (!parsed.success) {
-        setError(next.trim().length === 0 ? null : parsed.error.issues[0].message);
+        setError(next.trim().length === 0 ? null : parsed.error.issues[0]?.message ?? "That text can’t be used yet.");
         onChange(null);
         return;
       }

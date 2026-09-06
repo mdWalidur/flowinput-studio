@@ -78,7 +78,7 @@ export const titleCase = (text: string): string =>
   text
     .toLowerCase()
     .split(/\s+/)
-    .map((w) => (w.length ? w[0].toUpperCase() + w.slice(1) : w))
+    .map((w) => (w.length ? (w[0] ?? "").toUpperCase() + w.slice(1) : w))
     .join(" ");
 
 /** A short, human-friendly title derived from the content. */

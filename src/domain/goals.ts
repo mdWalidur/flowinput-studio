@@ -65,4 +65,4 @@ export const GOALS: GoalDefinition[] = [
 ];
 
 export const goalById = (id: GoalId): GoalDefinition =>
-  GOALS.find((g) => g.id === id) ?? GOALS[0];
+  GOALS.find((g) => g.id === id) ?? (GOALS[0] as GoalDefinition);

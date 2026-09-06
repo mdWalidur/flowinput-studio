@@ -50,13 +50,18 @@ function writeAll(items: WorkItem[]): void {
   }
 }
 
-const truncate = (item: WorkItem): WorkItem => ({
-  ...item,
-  source: { ...item.source, text: item.source.text.slice(0, MAX_STORED_CHARS) },
-  result: item.result
-    ? { ...item.result, output: item.result.output.slice(0, MAX_STORED_CHARS) }
-    : undefined,
-});
+const truncate = (item: WorkItem): WorkItem => {
+  const next: WorkItem = {
+    ...item,
+    source: { ...item.source, text: item.source.text.slice(0, MAX_STORED_CHARS) },
+  };
+  if (item.result) {
+    next.result = { ...item.result, output: item.result.output.slice(0, MAX_STORED_CHARS) };
+  } else {
+    delete next.result;
+  }
+  return next;
+};
 
 export class LocalWorkItemRepository implements WorkItemRepository {
   async list(): Promise<WorkItem[]> {
