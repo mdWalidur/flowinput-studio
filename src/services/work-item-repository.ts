@@ -81,7 +81,7 @@ function readAll(): WorkItem[] {
     if (!Array.isArray(parsed)) return [];
     return parsed.flatMap((item) => {
       const result = workItemSchema.safeParse(item);
-      return result.success ? [result.data] : [];
+      return result.success ? [result.data as WorkItem] : [];
     });
   } catch {
     return [];
