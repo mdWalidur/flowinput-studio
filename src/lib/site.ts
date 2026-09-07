@@ -3,13 +3,13 @@
  * Set VITE_SITE_URL to your real domain before launch; canonical URLs, the
  * sitemap and structured data all read from here.
  */
-const FALLBACK_URL = "https://flowinput.app";
+const FALLBACK_URL = "https://flowpoint.app";
 
 export const SITE = {
-  name: "FlowInput",
-  tagline: "Bring your content. Choose what you need back.",
+  name: "FlowPoint",
+  tagline: "Where the flow begins.",
   description:
-    "FlowInput is a content preparation workspace. Paste text or open a TXT, Markdown, Word or PDF file, then turn it into clean Markdown, a study pack, an AI brief, a product plan or a sharper prompt.",
+    "FlowPoint is a content preparation workspace that turns source material into clean Markdown, study packs, AI context, product plans and clearer prompts.",
   baseUrl: (import.meta.env["VITE_SITE_URL"] as string | undefined)?.replace(/\/$/, "") ||
     FALLBACK_URL,
 } as const;

@@ -48,6 +48,10 @@
 
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
+  --color-signal: var(--signal);
+  --color-signal-foreground: var(--signal-foreground);
+  --color-ink-inverse: var(--ink-inverse);
+  --color-quiet: var(--quiet);
 
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
@@ -94,6 +98,10 @@
 
   --surface: oklch(0.995 0.002 90);
   --surface-2: oklch(0.947 0.006 90);
+  --signal: oklch(0.62 0.145 42);
+  --signal-foreground: oklch(0.985 0.004 90);
+  --ink-inverse: oklch(0.965 0.006 88);
+  --quiet: oklch(0.925 0.009 88);
 }
 
 .dark {
@@ -136,6 +144,10 @@
 
   --surface: oklch(0.21 0.013 165);
   --surface-2: oklch(0.25 0.014 165);
+  --signal: oklch(0.72 0.13 44);
+  --signal-foreground: oklch(0.17 0.012 165);
+  --ink-inverse: oklch(0.965 0.006 88);
+  --quiet: oklch(0.29 0.014 165);
 }
 
 @layer base {
@@ -233,6 +245,17 @@
 
 @utility text-balance {
   text-wrap: balance;
+}
+
+@utility flow-grid {
+  background-image:
+    linear-gradient(to right, color-mix(in oklab, var(--color-border) 45%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--color-border) 45%, transparent) 1px, transparent 1px);
+  background-size: 2rem 2rem;
+}
+
+@utility flow-fade {
+  mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
 }
 
 @utility panel {

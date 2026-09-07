@@ -10,10 +10,10 @@ export function SiteFooter() {
         <div>
           <Link to="/" className="flex items-center gap-2.5 text-primary">
             <BrandMark className="size-7" />
-            <span className="font-display text-base font-medium text-foreground">FlowInput</span>
+            <span className="font-display text-base font-medium text-foreground">FlowPoint</span>
           </Link>
           <p className="mt-3 max-w-xs text-sm text-muted-foreground">
-            A quiet workspace for getting your own material into the shape you actually need.
+            Where source material becomes a useful next direction.
           </p>
         </div>
 
@@ -62,7 +62,7 @@ export function SiteFooter() {
 
       <div className="border-t border-border">
         <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-5 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6">
-          <p>© {year} FlowInput. All rights reserved.</p>
+          <p>© {year} FlowPoint. All rights reserved.</p>
           <p>You keep the rights to everything you bring here.</p>
         </div>
       </div>
