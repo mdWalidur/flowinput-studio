@@ -250,16 +250,12 @@ function WorkspacePage() {
   return (
     <PageShell>
       <div className="mx-auto w-full max-w-6xl px-5 py-12 sm:px-8 sm:py-20">
-        <header className="border-b border-border pb-10 sm:pb-14">
+        <header className="border-b border-border pb-8 sm:pb-10">
           <div className="flex items-start justify-between gap-6">
             <div>
-              <h1 className="font-sans text-4xl font-semibold leading-none tracking-normal sm:text-6xl">
-                Make something useful.
+              <h1 className="font-sans text-3xl font-semibold leading-none tracking-normal sm:text-5xl">
+                Workspace
               </h1>
-
-              <p className="mt-4 max-w-xl text-base leading-7 text-muted-foreground">
-                Add your source, choose a direction, and review the result.
-              </p>
             </div>
 
             {(source || result) && (
@@ -278,9 +274,8 @@ function WorkspacePage() {
         </header>
 
         <div className="grid lg:grid-cols-[minmax(0,1.35fr)_minmax(18rem,0.65fr)]">
-          <section className="min-w-0 py-10 lg:border-r lg:border-border lg:pr-12" aria-labelledby="workspace-source">
-            <h2 id="workspace-source" className="font-sans text-lg font-medium tracking-normal">Source</h2>
-            <div className="mt-6">
+            <section className="min-w-0 py-10 lg:border-r lg:border-border lg:pr-12" aria-label="Source">
+              <div>
               <InputStudio source={source} onChange={(next) => {
                 setSource(next); setResult(null); setSavedId(null); setError(null);
               }} />
@@ -288,9 +283,8 @@ function WorkspacePage() {
           </section>
 
           <div className="border-t border-border py-10 lg:border-t-0 lg:pl-12">
-            <section aria-labelledby="workspace-goal">
-              <h2 id="workspace-goal" className="font-sans text-lg font-medium tracking-normal">Direction</h2>
-              <div className="mt-6">
+            <section aria-label="Direction">
+              <div>
                 <GoalPicker value={goalId} onChange={(id) => { setGoalId(id); setResult(null); setSavedId(null); }} compact />
               </div>
             </section>
@@ -303,7 +297,7 @@ function WorkspacePage() {
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.18 }}
-                  className="overflow-hidden border-b border-border py-8"
+                  className="overflow-hidden border-b border-border py-6"
                   aria-label="Options"
                 >
                   <OptionsPanel goal={goal} options={options} onChange={setOptions} />

@@ -1,5 +1,4 @@
 import { useRef } from "react";
-import { Check } from "lucide-react";
 
 import { GOALS } from "@/domain/goals";
 import type { GoalId } from "@/domain/types";
@@ -36,7 +35,7 @@ export function GoalPicker({
     <div
       role="radiogroup"
       aria-label="What would you like to do?"
-      className="divide-y divide-border border-y border-border"
+      className="flex flex-wrap gap-x-6 gap-y-1 border-y border-border py-4"
     >
       {GOALS.map((goal, index) => {
         const selected = value === goal.id;
@@ -75,15 +74,12 @@ export function GoalPicker({
               }
             }}
             className={cn(
-              "group grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-5 py-5 text-left transition-colors",
-              "hover:text-primary",
-              selected && "text-primary",
+              "text-left text-sm text-muted-foreground transition-colors hover:text-foreground",
+              selected && "text-signal",
             )}
           >
             <span className="min-w-0">
-              <span className="flex items-center gap-3">
-                <span className="text-base font-medium">{compact ? shortLabel(goal.id) : goal.label}</span>
-              </span>
+              <span className="font-medium">{compact ? shortLabel(goal.id) : goal.label}</span>
               {!compact ? (
                 <span className="mt-1.5 block max-w-2xl text-sm leading-6 text-muted-foreground">
                   {goal.description}
@@ -91,9 +87,6 @@ export function GoalPicker({
               ) : null}
             </span>
 
-            <span className={cn("size-2 rounded-full border border-border", selected && "border-primary bg-primary")}>
-              <Check className="hidden" aria-hidden="true" />
-            </span>
           </button>
         );
       })}

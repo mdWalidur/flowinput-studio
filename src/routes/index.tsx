@@ -5,7 +5,6 @@ import { ArrowRight, Loader2, Paperclip, X } from "lucide-react";
 
 import { PageShell } from "@/components/page-shell";
 import { Button } from "@/components/ui/button";
-import { GOALS } from "@/domain/goals";
 import {
   DEFAULT_OPTIONS,
   type GoalId,
@@ -78,7 +77,7 @@ function LandingPage() {
     id: newId(),
     kind: fileName ? "file" : "text",
     name: fileName ?? "Pasted text",
-    extension: fileName ? (extensionOf(fileName) as SupportedExtension) : "text",
+    extension: fileName ? ((extensionOf(fileName) || "txt") as SupportedExtension) : "text",
     mimeType: "text/plain",
     sizeBytes: new Blob([text]).size,
     text,
