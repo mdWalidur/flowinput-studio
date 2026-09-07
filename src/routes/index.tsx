@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ArrowDown, ArrowRight, Check, LockKeyhole } from "lucide-react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
 import { BrandMark } from "@/components/brand-mark";
 import { GoalIcon } from "@/components/goal-icon";
@@ -83,12 +83,14 @@ function LandingPage() {
 }
 
 function Hero() {
+  const reduceMotion = useReducedMotion();
+
   return (
     <section className="relative overflow-hidden border-b border-border">
       <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-1/2 flow-grid opacity-40 lg:block" />
       <div className="relative mx-auto max-w-7xl px-5 pb-16 pt-12 sm:px-8 sm:pb-24 sm:pt-20 lg:pb-28 lg:pt-24">
         <motion.div
-          initial="hidden"
+          initial={reduceMotion ? "visible" : "hidden"}
           animate="visible"
           variants={{
             hidden: {},
@@ -160,6 +162,7 @@ function Hero() {
 
 function FlowArtifact() {
   const [activeId, setActiveId] = useState<ArtifactOutputId>("spec");
+  const reduceMotion = useReducedMotion();
   const active =
     ARTIFACT_OUTPUTS.find((output) => output.id === activeId) ?? ARTIFACT_OUTPUTS[0];
 
@@ -186,7 +189,7 @@ function FlowArtifact() {
             stroke="currentColor"
             className="text-border"
             strokeWidth="1.5"
-            initial={{ pathLength: 0 }}
+            initial={reduceMotion ? { pathLength: 1 } : { pathLength: 0 }}
             animate={{ pathLength: 1 }}
             transition={{ duration: 0.7, delay: 0.25 }}
           />
@@ -196,7 +199,7 @@ function FlowArtifact() {
             className="text-border"
             fill="none"
             strokeWidth="1.5"
-            initial={{ pathLength: 0 }}
+            initial={reduceMotion ? { pathLength: 1 } : { pathLength: 0 }}
             animate={{ pathLength: 1 }}
             transition={{ duration: 0.65, delay: 0.65 }}
           />
@@ -206,7 +209,7 @@ function FlowArtifact() {
             className="text-border"
             fill="none"
             strokeWidth="1.5"
-            initial={{ pathLength: 0 }}
+            initial={reduceMotion ? { pathLength: 1 } : { pathLength: 0 }}
             animate={{ pathLength: 1 }}
             transition={{ duration: 0.6, delay: 0.75 }}
           />
@@ -216,7 +219,7 @@ function FlowArtifact() {
             className="text-border"
             fill="none"
             strokeWidth="1.5"
-            initial={{ pathLength: 0 }}
+            initial={reduceMotion ? { pathLength: 1 } : { pathLength: 0 }}
             animate={{ pathLength: 1 }}
             transition={{ duration: 0.65, delay: 0.85 }}
           />
@@ -238,7 +241,7 @@ function FlowArtifact() {
 
         <motion.div
           className="absolute left-[44%] top-1/2 z-10 flex size-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-signal bg-background sm:left-[45%] sm:size-16"
-          initial={{ scale: 0.8, opacity: 0 }}
+          initial={reduceMotion ? { scale: 1, opacity: 1 } : { scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.55, duration: 0.35 }}
         >
@@ -311,6 +314,8 @@ function FlowArtifact() {
 }
 
 function FlowSequence() {
+  const reduceMotion = useReducedMotion();
+
   return (
     <section id="how-it-works" className="scroll-mt-24 border-b border-border">
       <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:py-28">
@@ -327,7 +332,7 @@ function FlowSequence() {
             {FLOW_STEPS.map(([number, name, detail], index) => (
               <motion.li
                 key={name}
-                initial={{ opacity: 0, y: 12 }}
+                initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.7 }}
                 transition={{ delay: index * 0.055, duration: 0.35 }}
@@ -413,6 +418,8 @@ function Directions() {
 }
 
 function BranchingSource() {
+  const reduceMotion = useReducedMotion();
+
   return (
     <section className="overflow-hidden border-b border-border bg-primary text-primary-foreground">
       <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:py-28">
@@ -456,7 +463,7 @@ function BranchingSource() {
                 ].map(([label, result], index) => (
                   <motion.div
                     key={label}
-                    initial={{ opacity: 0, x: -16 }}
+                    initial={reduceMotion ? { opacity: 1, x: 0 } : { opacity: 0, x: -16 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true, amount: 0.7 }}
                     transition={{ delay: index * 0.1, duration: 0.4 }}
