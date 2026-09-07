@@ -114,7 +114,7 @@ export function InputStudio({ source, onChange }: Props) {
           mimeType: file.type || "application/octet-stream",
           sizeBytes: file.size,
           text: extracted.text,
-          engine: extracted.engine,
+          engine: extracted.engine === "markdown" ? "plain-text" : extracted.engine,
           warnings: extracted.warnings,
           meta: {
             ...(extracted.meta ?? {}),

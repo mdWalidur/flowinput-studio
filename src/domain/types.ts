@@ -1,5 +1,5 @@
 /**
- * Core domain models for FlowInput.
+ * Core domain models for FlowPoint.
  *
  * These entities are transport-agnostic on purpose, so authenticated cloud
  * persistence and future studios (image/video) can reuse them unchanged.

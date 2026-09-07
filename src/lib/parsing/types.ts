@@ -15,7 +15,7 @@ export interface ExtractionResult {
   engine: ExtractionEngine;
   /** Non-fatal notes shown to the user (e.g. "page 4 had no selectable text"). */
   warnings: string[];
-  /** What FlowInput changed or normalized. */
+  /** What FlowPoint changed or normalized. */
   changes?: string[];
   /** Raw extractor output (e.g. HTML from mammoth, raw PDF blocks). */
   raw?: string;

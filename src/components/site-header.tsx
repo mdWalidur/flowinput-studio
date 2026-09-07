@@ -31,13 +31,13 @@ export function SiteHeader() {
       <div className="mx-auto flex h-[4.75rem] max-w-7xl items-center px-5 sm:px-8">
         <Link
           to="/"
-          aria-label="FlowInput home"
+          aria-label="FlowPoint home"
           className="group flex items-center gap-3"
         >
           <BrandMark className="size-7 transition-transform duration-300 group-hover:-rotate-3" />
 
           <span className="font-display text-xl tracking-tight">
-            FlowInput
+            FlowPoint
           </span>
         </Link>
 
@@ -60,7 +60,7 @@ export function SiteHeader() {
           ))}
 
           <Button asChild size="sm" className="ml-1 rounded-full px-5">
-            <Link to="/workspace">Start something</Link>
+            <Link to="/workspace">Open FlowPoint</Link>
           </Button>
         </nav>
 
@@ -79,7 +79,7 @@ export function SiteHeader() {
 
             <SheetContent side="right" className="w-[20rem]">
               <SheetTitle className="font-display text-xl">
-                FlowInput
+                FlowPoint
               </SheetTitle>
 
               <nav className="mt-8 flex flex-col">
@@ -100,7 +100,7 @@ export function SiteHeader() {
                 className="mt-8 w-full rounded-full"
                 onClick={() => setOpen(false)}
               >
-                <Link to="/workspace">Start something</Link>
+                <Link to="/workspace">Open FlowPoint</Link>
               </Button>
             </SheetContent>
           </Sheet>
