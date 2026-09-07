@@ -189,9 +189,15 @@ export function FlowField() {
                   setHoveredId(direction.id);
                   setState("hover");
                 }}
-                onPointerLeave={() => setHoveredId(null)}
+                onPointerLeave={() => {
+                  setHoveredId(null);
+                  setState("result");
+                }}
                 onFocus={() => setHoveredId(direction.id)}
-                onBlur={() => setHoveredId(null)}
+                onBlur={() => {
+                  setHoveredId(null);
+                  setState("result");
+                }}
                 onClick={() => chooseDirection(direction.id)}
                 className={`flow-destination ${direction.position} ${active ? "flow-destination--active" : ""}`}
               >
