@@ -51,21 +51,21 @@ function OpeningField() {
   return (
     <section className="relative overflow-hidden border-b border-border">
       <div className="pointer-events-none absolute inset-0 flow-grid opacity-40" />
-      <div className="relative mx-auto max-w-[90rem] px-5 pb-10 pt-8 sm:px-8 sm:pb-14 lg:px-12 lg:pb-16 lg:pt-10">
+      <div className="relative mx-auto max-w-[90rem] px-5 pb-8 pt-6 sm:px-8 sm:pb-14 sm:pt-8 lg:px-12 lg:pb-16 lg:pt-10">
         <div className="grid items-end gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(20rem,0.55fr)]">
           <div className="min-w-0">
             <p className="flow-label flex items-center gap-3 text-foreground">
               <span className="h-px w-8 bg-border" />
               Where the flow begins
             </p>
-            <h1 className="mt-5 max-w-5xl font-sans text-5xl font-semibold leading-[0.94] tracking-normal sm:text-7xl lg:text-[6.4rem]">
+            <h1 className="mt-4 max-w-5xl font-sans text-4xl font-semibold leading-[0.94] tracking-normal sm:mt-5 sm:text-7xl lg:text-[6.4rem]">
               Turn what you have
               <span className="block text-muted-foreground">into what’s next.</span>
             </h1>
           </div>
 
-          <div className="grid gap-5 border-l border-border pl-5 lg:mb-2 lg:pl-8">
-            <p className="max-w-md text-base leading-7 text-muted-foreground">
+          <div className="grid gap-4 border-l border-border pl-5 lg:mb-2 lg:gap-5 lg:pl-8">
+            <p className="max-w-md text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">
               A controlled transformation field for directing source material into a
               useful, reviewable result.
             </p>
@@ -83,7 +83,7 @@ function OpeningField() {
           </div>
         </div>
 
-        <div className="mt-8 sm:mt-10">
+        <div className="mt-6 sm:mt-10">
           <FlowField />
         </div>
       </div>
