@@ -71,7 +71,7 @@ export function ResultStudio({
   };
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-8">
       <header className="flex flex-wrap items-center justify-between gap-5 border-b border-border pb-6">
         <div>
           <h2 className="font-sans text-3xl font-semibold tracking-normal sm:text-4xl">
@@ -123,37 +123,18 @@ export function ResultStudio({
         </div>
       </header>
 
-      <div className="grid gap-12 xl:grid-cols-[minmax(0,1fr)_240px]">
-        <article className="min-w-0">
-          <ResultBody result={result} sourceText={source.text} />
-        </article>
-
-        <aside className="self-start xl:sticky xl:top-28">
-          <section className="border-y border-border py-5">
-            <h3 className="text-sm font-medium">
-              What changed
-            </h3>
-
-            <ul className="mt-4 space-y-3">
-              {result.notes.map((note) => (
-                <li
-                  key={note}
-                  className="flex gap-3 text-sm leading-6"
-                >
-                  <span>{note}</span>
-                </li>
-              ))}
-            </ul>
-          </section>
-
-          <p className="mt-5 text-xs leading-5 text-muted-foreground">
-            {result.stats.outputWords.toLocaleString()} words · about {result.stats.readingMinutes} min
-          </p>
-        </aside>
-      </div>
+      <article className="min-w-0 max-w-4xl">
+        <ResultBody result={result} sourceText={source.text} />
+      </article>
 
       <div className="border-t border-border pt-5">
         <details>
+          <summary className="cursor-pointer text-sm font-medium">What changed</summary>
+          <ul className="mt-4 space-y-2 text-sm leading-6 text-muted-foreground">
+            {result.notes.map((note) => <li key={note}>{note}</li>)}
+          </ul>
+        </details>
+        <details className="mt-4">
           <summary className="cursor-pointer text-sm font-medium">Source</summary>
           <pre className="mt-5 max-h-80 overflow-auto whitespace-pre-wrap border-l border-border pl-5 text-sm leading-7 text-muted-foreground">{source.text}</pre>
         </details>

@@ -1,7 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Menu } from "lucide-react";
 import { useState } from "react";
-import { BrandMark } from "@/components/brand-mark";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -32,13 +31,9 @@ export function SiteHeader() {
         <Link
           to="/"
           aria-label="FlowPoint home"
-          className="group flex items-center gap-2.5"
+          className="text-base font-semibold"
         >
-          <BrandMark className="size-5" />
-
-          <span className="text-base font-semibold">
-            FlowPoint
-          </span>
+          FlowPoint
         </Link>
 
         <nav
@@ -59,9 +54,6 @@ export function SiteHeader() {
             </Link>
           ))}
 
-          <Button asChild size="sm" className="ml-1 shadow-none">
-            <Link to="/workspace">Open FlowPoint</Link>
-          </Button>
         </nav>
 
         <div className="ml-auto md:hidden">
@@ -95,13 +87,6 @@ export function SiteHeader() {
                 ))}
               </nav>
 
-              <Button
-                asChild
-                className="mt-8 w-full"
-                onClick={() => setOpen(false)}
-              >
-                <Link to="/workspace">Open FlowPoint</Link>
-              </Button>
             </SheetContent>
           </Sheet>
         </div>
