@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 import type { TransformResult } from "@/domain/types";
 import { MarkdownView } from "@/components/markdown-view";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ContextChunkCard } from "./context-chunk-card";
 import { parseAiContextOutput } from "./parse-ai-context";
@@ -17,13 +16,7 @@ export function AiContextResult({ result }: { result: TransformResult }) {
         {parsed.subject && <p className="font-display text-lg font-semibold">{parsed.subject}</p>}
         {parsed.origin && <p className="text-sm text-muted-foreground">Origin: {parsed.origin}</p>}
         {parsed.topics.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 pt-1">
-            {parsed.topics.map((topic) => (
-              <Badge key={topic} variant="secondary" className="font-normal">
-                {topic}
-              </Badge>
-            ))}
-          </div>
+          <p className="pt-1 text-sm text-muted-foreground">{parsed.topics.join(" · ")}</p>
         )}
       </div>
 
@@ -62,7 +55,7 @@ export function AiContextResult({ result }: { result: TransformResult }) {
         </div>
       </section>
 
-      <section aria-labelledby="ctx-contract" className="panel-flat p-4">
+      <section aria-labelledby="ctx-contract" className="border-t border-border pt-5">
         <h3 id="ctx-contract" className="eyebrow">
           Response contract
         </h3>

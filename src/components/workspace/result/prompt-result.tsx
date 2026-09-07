@@ -23,7 +23,7 @@ export function PromptResult({ result, sourceText }: Props) {
           </p>
           <pre
             aria-labelledby="prompt-original-label"
-            className="mt-2 whitespace-pre-wrap rounded-lg border border-border bg-surface-2 p-3 font-mono text-[12px] leading-relaxed text-muted-foreground"
+            className="mt-2 whitespace-pre-wrap border-l border-border py-2 pl-4 font-mono text-[12px] leading-relaxed text-muted-foreground"
           >
             {preview}
           </pre>
@@ -34,7 +34,7 @@ export function PromptResult({ result, sourceText }: Props) {
           </p>
           <pre
             aria-labelledby="prompt-improved-label"
-            className="mt-2 whitespace-pre-wrap rounded-lg border border-primary/30 bg-surface p-3 font-mono text-[12px] leading-relaxed"
+            className="mt-2 whitespace-pre-wrap border-l border-primary py-2 pl-4 font-mono text-[12px] leading-relaxed"
           >
             {result.output}
           </pre>

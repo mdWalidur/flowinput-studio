@@ -20,7 +20,7 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/75 bg-background/90 backdrop-blur-xl">
+    <header className="sticky top-0 z-40 border-b border-border bg-background">
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-3 focus:py-2 focus:text-sm focus:text-primary-foreground"
@@ -28,22 +28,22 @@ export function SiteHeader() {
         Skip to content
       </a>
 
-      <div className="mx-auto flex h-[4.75rem] max-w-7xl items-center px-5 sm:px-8">
+      <div className="mx-auto flex h-16 max-w-6xl items-center px-5 sm:px-8">
         <Link
           to="/"
           aria-label="FlowPoint home"
-          className="group flex items-center gap-3"
+          className="group flex items-center gap-2.5"
         >
-          <BrandMark className="size-7 transition-transform duration-300 group-hover:-rotate-3" />
+          <BrandMark className="size-5" />
 
-          <span className="font-display text-xl tracking-tight">
+          <span className="text-base font-semibold">
             FlowPoint
           </span>
         </Link>
 
         <nav
           aria-label="Main"
-          className="ml-auto hidden items-center gap-8 md:flex"
+          className="ml-auto hidden items-center gap-7 md:flex"
         >
           {NAV.map((item) => (
             <Link
@@ -59,7 +59,7 @@ export function SiteHeader() {
             </Link>
           ))}
 
-          <Button asChild size="sm" className="ml-1 rounded-full px-5">
+          <Button asChild size="sm" className="ml-1 shadow-none">
             <Link to="/workspace">Open FlowPoint</Link>
           </Button>
         </nav>
@@ -71,14 +71,14 @@ export function SiteHeader() {
                 variant="ghost"
                 size="icon"
                 aria-label="Open menu"
-                className="rounded-full"
+                className=""
               >
                 <Menu className="size-5" />
               </Button>
             </SheetTrigger>
 
             <SheetContent side="right" className="w-[20rem]">
-              <SheetTitle className="font-display text-xl">
+              <SheetTitle className="text-lg font-semibold">
                 FlowPoint
               </SheetTitle>
 
@@ -97,7 +97,7 @@ export function SiteHeader() {
 
               <Button
                 asChild
-                className="mt-8 w-full rounded-full"
+                className="mt-8 w-full"
                 onClick={() => setOpen(false)}
               >
                 <Link to="/workspace">Open FlowPoint</Link>

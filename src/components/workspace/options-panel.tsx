@@ -35,7 +35,7 @@ export function OptionsPanel({
   }
 
   return (
-    <div className="grid gap-6 md:grid-cols-2">
+    <div className="grid gap-6">
       <div className="space-y-4">
         {shows("detail") && (
           <div className="space-y-2">
@@ -59,7 +59,7 @@ export function OptionsPanel({
         )}
 
         {shows("metadata") && (
-          <div className="flex items-center justify-between gap-4 rounded-lg border border-border bg-surface-2 px-3 py-2.5">
+          <div className="flex items-center justify-between gap-4 border-t border-border pt-4">
             <div>
               <Label htmlFor={metaId} className="text-sm">
                 Add a short header
@@ -84,7 +84,7 @@ export function OptionsPanel({
             maxLength={500}
             onChange={(e) => onChange({ ...options, instructions: e.target.value })}
             placeholder={goal.instructionsHint}
-            className="min-h-28 resize-y text-sm"
+            className="min-h-28 resize-y rounded-none border-x-0 border-t-0 px-0 text-sm shadow-none focus-visible:ring-0"
           />
           <p className="text-xs text-muted-foreground">
             {(options.instructions ?? "").length}/500 characters.
