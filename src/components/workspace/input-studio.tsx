@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { AlertTriangle, FileText, Info, Lightbulb, Loader2, Upload, X } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -18,7 +17,7 @@ import {
   formatBytes,
 } from "@/lib/validation";
 import { newId } from "@/services/work-item-repository";
-import { SOURCE_ENGINE_LABEL, type SourceDocument, type SupportedExtension } from "@/domain/types";
+import { type SourceDocument, type SupportedExtension } from "@/domain/types";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -155,14 +154,14 @@ export function InputStudio({ source, onChange }: Props) {
   return (
     <div className="space-y-4">
       <Tabs value={mode} onValueChange={(v) => setMode(v as typeof mode)}>
-        <TabsList className="w-full sm:w-auto">
-          <TabsTrigger value="paste" className="flex-1 sm:flex-none">
+        <TabsList className="h-auto w-full justify-start gap-6 rounded-none border-b border-border bg-transparent p-0 sm:w-auto">
+          <TabsTrigger value="paste" className="flex-1 rounded-none border-b-2 border-transparent px-0 pb-3 shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none sm:flex-none">
             Paste text
           </TabsTrigger>
-          <TabsTrigger value="upload" className="flex-1 sm:flex-none">
+          <TabsTrigger value="upload" className="flex-1 rounded-none border-b-2 border-transparent px-0 pb-3 shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none sm:flex-none">
             Open a file
           </TabsTrigger>
-          <TabsTrigger value="idea" className="flex-1 sm:flex-none">
+          <TabsTrigger value="idea" className="flex-1 rounded-none border-b-2 border-transparent px-0 pb-3 shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none sm:flex-none">
             Start with an idea
           </TabsTrigger>
         </TabsList>
@@ -198,7 +197,7 @@ export function InputStudio({ source, onChange }: Props) {
         </TabsContent>
 
         <TabsContent value="idea" className="mt-4 space-y-3">
-          <div className="flex items-start gap-2 rounded-lg border border-border bg-accent/40 px-3 py-2.5 text-sm">
+          <div className="flex items-start gap-2 border-l border-primary pl-3 text-sm">
             <Lightbulb className="mt-0.5 size-4 shrink-0 text-brand" aria-hidden="true" />
             <p className="text-muted-foreground">
               No document yet? Describe what you have in mind in a sentence or two — this works best
@@ -232,7 +231,7 @@ export function InputStudio({ source, onChange }: Props) {
               if (file) void handleFile(file);
             }}
             className={cn(
-              "rounded-xl border border-dashed border-border bg-surface-2 p-8 text-center transition-colors",
+              "border-y border-dashed border-border py-10 text-center transition-colors",
               dragging && "border-primary bg-primary/5",
             )}
           >
@@ -301,9 +300,8 @@ export function InputStudio({ source, onChange }: Props) {
       )}
 
       {source && (
-        <div className="panel-flat space-y-2 px-3 py-2.5">
+        <div className="space-y-2 border-t border-border pt-3">
           <div className="flex flex-wrap items-center gap-2 text-sm">
-            <Badge variant="secondary">{SOURCE_ENGINE_LABEL[source.engine]}</Badge>
             <span className="min-w-0 flex-1 truncate font-medium">{source.name}</span>
             <span className="text-xs text-muted-foreground">
               {source.text.trim().split(/\s+/).length.toLocaleString()} words
@@ -372,7 +370,7 @@ function TextField({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className={cn("resize-y text-sm leading-relaxed", rows)}
+        className={cn("resize-y rounded-none border-x-0 border-t-0 px-0 text-sm leading-relaxed shadow-none focus-visible:ring-0", rows)}
         aria-describedby={`${id}-help`}
         aria-invalid={invalid || short}
       />

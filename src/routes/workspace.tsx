@@ -1,13 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
 import {
-  ArrowDown,
   ArrowRight,
-  Check,
   Loader2,
   RotateCcw,
-  Sparkles,
 } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import { toast } from "sonner";
 
 import { PageShell } from "@/components/page-shell";
@@ -37,7 +35,6 @@ import {
   newId,
 } from "@/services/work-item-repository";
 import { privateRouteMeta } from "@/lib/site";
-import { cn } from "@/lib/utils";
 import { SAMPLES } from "@/lib/sample-content";
 import { transformOptionsSchema } from "@/lib/validation";
 
@@ -60,7 +57,7 @@ export const Route = createFileRoute("/workspace")({
 
   head: () =>
     privateRouteMeta(
-      "Workspace — FlowInput",
+      "Workspace — FlowPoint",
       "Bring in your content, choose what you need back, and review the result.",
     ),
 
@@ -132,14 +129,6 @@ function WorkspacePage() {
   const ready = Boolean(
     source?.text.trim() && goalId,
   );
-
-  const currentStage = useMemo(() => {
-    if (result) return 4;
-    if (working) return 3;
-    if (goalId) return 2;
-    if (source?.text.trim()) return 1;
-    return 0;
-  }, [goalId, result, source, working]);
 
   const title = useMemo(() => {
     if (!source || !goal) return "Untitled";
@@ -260,21 +249,16 @@ function WorkspacePage() {
 
   return (
     <PageShell>
-      <div className="mx-auto w-full max-w-7xl px-5 py-12 sm:px-8 sm:py-16">
-        <header className="max-w-4xl">
-          <div className="flex items-end justify-between gap-6">
+      <div className="mx-auto w-full max-w-6xl px-5 py-12 sm:px-8 sm:py-20">
+        <header className="border-b border-border pb-10 sm:pb-14">
+          <div className="flex items-start justify-between gap-6">
             <div>
-              <div className="eyebrow">Workspace</div>
-
-              <h1 className="mt-5 max-w-3xl text-balance text-5xl tracking-tight sm:text-6xl lg:text-7xl">
-                Turn what you have
-                <br />
-                into what you need.
+              <h1 className="font-sans text-4xl font-semibold leading-none tracking-normal sm:text-6xl">
+                Make something useful.
               </h1>
 
-              <p className="mt-6 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">
-                Bring in the material. Choose the purpose.
-                FlowInput shapes the next useful version.
+              <p className="mt-4 max-w-xl text-base leading-7 text-muted-foreground">
+                Add your source, choose a direction, and review the result.
               </p>
             </div>
 
@@ -283,7 +267,7 @@ function WorkspacePage() {
                 type="button"
                 variant="ghost"
                 onClick={startOver}
-                className="shrink-0 rounded-full"
+                className="shrink-0"
               >
                 <RotateCcw className="size-4" />
                 Start over
@@ -291,115 +275,49 @@ function WorkspacePage() {
             )}
           </div>
 
-          <div className="mt-12 flex flex-wrap items-center gap-3">
-            {[
-              ["01", "Source"],
-              ["02", "Purpose"],
-              ["03", "Direction"],
-              ["04", "Output"],
-            ].map(([number, label], index) => (
-              <div key={number} className="flex items-center gap-3">
-                <div
-                  className={cn(
-                    "flex size-7 items-center justify-center rounded-full border font-mono text-[10px]",
-                    currentStage > index
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : currentStage === index
-                        ? "border-primary text-primary"
-                        : "border-border text-muted-foreground",
-                  )}
-                >
-                  {currentStage > index ? (
-                    <Check className="size-3" />
-                  ) : (
-                    number
-                  )}
-                </div>
-
-                <span
-                  className={cn(
-                    "text-sm",
-                    currentStage === index
-                      ? "text-foreground"
-                      : "text-muted-foreground",
-                  )}
-                >
-                  {label}
-                </span>
-
-                {index < 3 && (
-                  <ArrowRight
-                    className="mx-1 size-3.5 text-muted-foreground"
-                    aria-hidden="true"
-                  />
-                )}
-              </div>
-            ))}
-          </div>
         </header>
 
-        <div className="mt-20">
-          <WorkspaceStage
-            number="01"
-            eyebrow="Source"
-            title="Start with what you already have."
-            description="Paste it, open a file, or begin with an idea."
-          >
-            <InputStudio
-              source={source}
-              onChange={(next) => {
-                setSource(next);
-                setResult(null);
-                setSavedId(null);
-                setError(null);
-              }}
-            />
-          </WorkspaceStage>
+        <div className="grid lg:grid-cols-[minmax(0,1.35fr)_minmax(18rem,0.65fr)]">
+          <section className="min-w-0 py-10 lg:border-r lg:border-border lg:pr-12" aria-labelledby="workspace-source">
+            <h2 id="workspace-source" className="font-sans text-lg font-medium tracking-normal">Source</h2>
+            <div className="mt-6">
+              <InputStudio source={source} onChange={(next) => {
+                setSource(next); setResult(null); setSavedId(null); setError(null);
+              }} />
+            </div>
+          </section>
 
-          <FlowDivider />
+          <div className="border-t border-border py-10 lg:border-t-0 lg:pl-12">
+            <section aria-labelledby="workspace-goal">
+              <h2 id="workspace-goal" className="font-sans text-lg font-medium tracking-normal">Direction</h2>
+              <div className="mt-6">
+                <GoalPicker value={goalId} onChange={(id) => { setGoalId(id); setResult(null); setSavedId(null); }} compact />
+              </div>
+            </section>
 
-          <WorkspaceStage
-            number="02"
-            eyebrow="Purpose"
-            title="Choose what you need back."
-            description="The purpose changes how FlowInput shapes the material."
-            muted={!source?.text.trim()}
-          >
-            <GoalPicker
-              value={goalId}
-              onChange={(id) => {
-                setGoalId(id);
-                setResult(null);
-                setSavedId(null);
-              }}
-            />
-          </WorkspaceStage>
+            <AnimatePresence initial={false}>
+              {goal ? (
+                <motion.section
+                  key={goal.id}
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.18 }}
+                  className="overflow-hidden border-b border-border py-8"
+                  aria-label="Options"
+                >
+                  <OptionsPanel goal={goal} options={options} onChange={setOptions} />
+                </motion.section>
+              ) : null}
+            </AnimatePresence>
 
-          {goal && (
-            <>
-              <FlowDivider />
-
-              <WorkspaceStage
-                number="03"
-                eyebrow="Direction"
-                title="Give the result a little direction."
-              >
-                <OptionsPanel
-                  goal={goal}
-                  options={options}
-                  onChange={setOptions}
-                />
-              </WorkspaceStage>
-            </>
-          )}
-
-          <div className="mt-10 flex flex-wrap items-center gap-4">
+            <div className="mt-8 flex flex-wrap items-center gap-4">
             <Button
               type="button"
               size="lg"
               onClick={run}
               disabled={!ready || working}
-              className="rounded-full px-6"
+              className="shadow-none"
             >
               {working ? (
                 <Loader2
@@ -407,17 +325,14 @@ function WorkspacePage() {
                   aria-hidden="true"
                 />
               ) : (
-                <Sparkles
-                  className="size-4"
-                  aria-hidden="true"
-                />
+                null
               )}
 
               {working
                 ? "Working…"
                 : goal
-                  ? goal.label
-                  : "Choose what you need"}
+                  ? "Make result"
+                  : "Choose a direction"}
 
               {!working && (
                 <ArrowRight className="size-4" />
@@ -429,9 +344,9 @@ function WorkspacePage() {
                 Add content and pick what you'd like back.
               </p>
             )}
-          </div>
+            </div>
 
-          {error && (
+            {error && (
             <Alert
               variant="destructive"
               role="alert"
@@ -442,7 +357,9 @@ function WorkspacePage() {
                 {error}
               </AlertDescription>
             </Alert>
-          )}
+            )}
+          </div>
+        </div>
 
           {working && (
             <div
@@ -462,17 +379,17 @@ function WorkspacePage() {
             </div>
           )}
 
-          {result && source && (
-            <>
-              <FlowDivider />
-
-              <div ref={resultRef}>
-                <WorkspaceStage
-                  number="04"
-                  eyebrow="Output"
-                  title="Here's the version you can use."
-                  description="Review it, copy it, download it, or save it for later."
-                >
+          <AnimatePresence mode="wait">
+            {result && source && (
+              <motion.div
+                key={`${result.goalId}-${result.output.length}`}
+                ref={resultRef}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="border-t border-border py-12 sm:py-16"
+              >
                   <ResultStudio
                     title={title}
                     source={source}
@@ -480,78 +397,10 @@ function WorkspacePage() {
                     onSave={save}
                     saved={Boolean(savedId)}
                   />
-                </WorkspaceStage>
-              </div>
-            </>
-          )}
-        </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
       </div>
     </PageShell>
-  );
-}
-
-function WorkspaceStage({
-  number,
-  eyebrow,
-  title,
-  description,
-  children,
-  muted,
-}: {
-  number: string;
-  eyebrow: string;
-  title: string;
-  description?: string;
-  children: React.ReactNode;
-  muted?: boolean;
-}) {
-  return (
-    <section
-      className={cn("relative", muted && "opacity-65")}
-      aria-label={`${number} ${eyebrow}`}
-    >
-      <div className="grid gap-8 lg:grid-cols-[180px_minmax(0,1fr)] lg:gap-12">
-        <div className="lg:sticky lg:top-28 lg:self-start">
-          <div className="font-mono text-xs text-brand">
-            {number}
-          </div>
-
-          <div className="mt-3 text-xs font-semibold uppercase tracking-[0.17em] text-muted-foreground">
-            {eyebrow}
-          </div>
-        </div>
-
-        <div>
-          <h2 className="max-w-3xl text-balance font-display text-3xl tracking-tight sm:text-4xl">
-            {title}
-          </h2>
-
-          {description && (
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base">
-              {description}
-            </p>
-          )}
-
-          <div className="mt-8">
-            {children}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function FlowDivider() {
-  return (
-    <div
-      className="my-14 flex items-center gap-4 lg:ml-[180px]"
-      aria-hidden="true"
-    >
-      <div className="h-px flex-1 bg-border" />
-      <div className="flex size-7 items-center justify-center rounded-full border border-border bg-background">
-        <ArrowDown className="size-3.5 text-brand" />
-      </div>
-      <div className="h-px flex-1 bg-border" />
-    </div>
   );
 }

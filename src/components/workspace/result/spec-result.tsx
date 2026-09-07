@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 import type { TransformResult } from "@/domain/types";
 import { MarkdownView } from "@/components/markdown-view";
-import { Badge } from "@/components/ui/badge";
 import { renderInline } from "@/lib/inline-markdown";
 import { parseSpecOutput, type SpecSection } from "./parse-spec";
 
@@ -63,12 +62,7 @@ function SpecSectionBlock({ section }: { section: SpecSection }) {
           {section.items.map((item, i) => (
             <li key={i}>
               {item.assumption && (
-                <Badge
-                  variant="outline"
-                  className="mr-1.5 border-warning/50 bg-warning/10 align-middle text-[10px] font-medium uppercase tracking-wide text-foreground"
-                >
-                  Assumption
-                </Badge>
+                <span className="mr-1.5 text-xs text-muted-foreground">Assumption:</span>
               )}
               {renderInline(item.text)}
             </li>

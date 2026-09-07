@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Check, Copy } from "lucide-react";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { copyToClipboard } from "@/lib/download";
 import type { ContextChunk } from "./parse-ai-context";
@@ -21,11 +20,9 @@ export function ContextChunkCard({ chunk }: { chunk: ContextChunk }) {
   };
 
   return (
-    <div className="rounded-lg border border-border bg-surface-2 p-3">
+    <div className="border-t border-border py-4">
       <div className="flex items-center justify-between gap-2">
-        <Badge variant="outline" className="font-mono text-[11px]">
-          C{chunk.id}
-        </Badge>
+        <span className="text-xs text-muted-foreground">C{chunk.id}</span>
         <Button
           type="button"
           variant="ghost"

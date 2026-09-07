@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import { BookOpen, Brain, Calendar, ListChecks } from "lucide-react";
 import type { TransformResult } from "@/domain/types";
 import { MarkdownView } from "@/components/markdown-view";
-import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { parseStudyOutput } from "./parse-study";
@@ -24,9 +23,10 @@ export function StudyResult({ result }: { result: TransformResult }) {
   return (
     <div className="space-y-6">
       {(parsed.depth || parsed.reviewTime) && (
-        <div className="flex flex-wrap items-center gap-2">
-          {parsed.depth && <Badge variant="secondary">{parsed.depth} depth</Badge>}
-          {parsed.reviewTime && <Badge variant="outline">{parsed.reviewTime}</Badge>}
+        <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+          {parsed.depth && <span>{parsed.depth} depth</span>}
+          {parsed.depth && parsed.reviewTime ? <span>·</span> : null}
+          {parsed.reviewTime && <span>{parsed.reviewTime}</span>}
         </div>
       )}
 
@@ -74,13 +74,7 @@ export function StudyResult({ result }: { result: TransformResult }) {
           <Brain className="size-3.5" aria-hidden="true" />
           Key terms
         </h3>
-        <div className="mt-2 flex flex-wrap gap-2">
-          {parsed.terms.map((term) => (
-            <Badge key={term} variant="outline" className="font-normal">
-              {term}
-            </Badge>
-          ))}
-        </div>
+        <p className="mt-2 text-sm leading-7">{parsed.terms.join(" · ")}</p>
       </section>
 
       <section aria-labelledby="study-questions">
@@ -95,7 +89,7 @@ export function StudyResult({ result }: { result: TransformResult }) {
         </ol>
       </section>
 
-      <section aria-labelledby="study-plan" className="panel-flat p-4">
+      <section aria-labelledby="study-plan" className="border-t border-border pt-5">
         <h3 id="study-plan" className="eyebrow">
           <Calendar className="size-3.5" aria-hidden="true" />
           Spaced review plan
