@@ -5,7 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-display: "Inter Tight", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Inter Tight", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
 
@@ -171,9 +171,9 @@
   h2,
   h3,
   h4 {
-    font-family: var(--font-display);
+    font-family: var(--font-sans);
     font-weight: 500;
-    letter-spacing: -0.022em;
+    letter-spacing: 0;
   }
 
   button,
@@ -197,19 +197,11 @@
 @utility eyebrow {
   display: inline-flex;
   align-items: center;
-  gap: 0.7rem;
-  font-size: 0.68rem;
-  font-weight: 650;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0;
   color: var(--color-muted-foreground);
-
-  &::before {
-    content: "";
-    width: 2.5rem;
-    height: 1px;
-    background: var(--color-brand);
-  }
 }
 
 @utility editorial-rule {
@@ -245,304 +237,6 @@
 
 @utility text-balance {
   text-wrap: balance;
-}
-
-@utility flow-grid {
-  background-image:
-    linear-gradient(to right, color-mix(in oklab, var(--color-border) 45%, transparent) 1px, transparent 1px),
-    linear-gradient(to bottom, color-mix(in oklab, var(--color-border) 45%, transparent) 1px, transparent 1px);
-  background-size: 2rem 2rem;
-}
-
-@utility flow-fade {
-  mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
-}
-
-@utility flow-label {
-  font-family: var(--font-mono);
-  font-size: 0.625rem;
-  font-weight: 500;
-  line-height: 1.4;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--color-muted-foreground);
-}
-
-@layer components {
-  .flow-landing h1,
-  .flow-landing h2,
-  .flow-landing h3 {
-    font-family: var(--font-sans);
-    letter-spacing: 0;
-  }
-
-  .flow-field {
-    position: relative;
-    overflow: hidden;
-    border-top: 1px solid var(--color-border);
-    border-bottom: 1px solid var(--color-border);
-    background: color-mix(in oklab, var(--color-background) 88%, var(--color-surface-2));
-  }
-
-  .flow-field__topline {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 1rem;
-    min-height: 2.75rem;
-    padding: 0 1rem;
-    border-bottom: 1px solid var(--color-border);
-    font-family: var(--font-mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--color-muted-foreground);
-  }
-
-  .flow-field__stage {
-    position: relative;
-    min-height: 30rem;
-    background-image:
-      linear-gradient(to right, color-mix(in oklab, var(--color-border) 42%, transparent) 1px, transparent 1px),
-      linear-gradient(to bottom, color-mix(in oklab, var(--color-border) 42%, transparent) 1px, transparent 1px);
-    background-size: 2.5rem 2.5rem;
-  }
-
-  .flow-field__source {
-    position: absolute;
-    left: 3%;
-    top: 50%;
-    z-index: 2;
-    width: 24%;
-    min-width: 13rem;
-    transform: translateY(-50%);
-    border-left: 2px solid var(--color-foreground);
-    background: var(--color-background);
-    padding: 1.25rem;
-  }
-
-  .flow-field__source p {
-    margin-top: 1rem;
-    font-family: var(--font-display);
-    font-size: 1rem;
-    line-height: 1.65;
-  }
-
-  .flow-field__paths {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-  }
-
-  .flow-path {
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.2;
-    vector-effect: non-scaling-stroke;
-  }
-
-  .flow-path--source {
-    stroke: var(--color-foreground);
-  }
-
-  .flow-path--active {
-    stroke: var(--color-signal);
-    stroke-width: 2;
-  }
-
-  .flow-field__point-wrap {
-    position: absolute;
-    left: 36.5%;
-    top: 50%;
-    z-index: 5;
-    display: flex;
-    transform: translate(-50%, -50%);
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .flow-field__point {
-    display: grid;
-    width: 5rem;
-    height: 5rem;
-    place-items: center;
-    border: 1px solid var(--color-signal);
-    border-radius: 9999px;
-    background: var(--color-background);
-    box-shadow: 0 0 0 0.75rem var(--color-background);
-  }
-
-  .flow-field__point::before,
-  .flow-field__point::after {
-    position: absolute;
-    content: "";
-    border-radius: 9999px;
-    border: 1px solid color-mix(in oklab, var(--color-signal) 40%, transparent);
-    opacity: 0;
-    transition: opacity 180ms ease, transform 300ms ease;
-  }
-
-  .flow-field__point::before { inset: -0.6rem; }
-  .flow-field__point::after { inset: -1.2rem; }
-  .flow-field__point[data-state="hover"]::before,
-  .flow-field__point[data-state="selected"]::before,
-  .flow-field__point[data-state="transforming"]::before,
-  .flow-field__point[data-state="transforming"]::after {
-    opacity: 1;
-  }
-
-  .flow-field__point > span {
-    width: 0.9rem;
-    height: 0.9rem;
-    border-radius: 9999px;
-    background: var(--color-signal);
-  }
-
-  .flow-destination {
-    position: absolute;
-    z-index: 4;
-    display: grid;
-    width: 20%;
-    min-width: 10rem;
-    grid-template-columns: auto minmax(0, 1fr);
-    justify-content: start;
-    gap: 0.75rem;
-    height: auto;
-    min-height: 3.5rem;
-    transform: translateY(-50%);
-    border-radius: 0;
-    border-top: 1px solid var(--color-border);
-    padding: 0.65rem 0;
-    text-align: left;
-    transition: color 180ms ease, border-color 180ms ease, transform 180ms ease;
-  }
-
-  .flow-destination:hover,
-  .flow-destination--active {
-    transform: translate(0.4rem, -50%);
-    border-color: var(--color-signal);
-    background: transparent;
-    color: var(--color-foreground);
-  }
-
-  .flow-destination__node {
-    width: 0.65rem;
-    height: 0.65rem;
-    margin-top: 0.25rem;
-    border: 1px solid var(--color-border);
-    border-radius: 9999px;
-    background: var(--color-background);
-    transition: background 180ms ease, border-color 180ms ease, transform 180ms ease;
-  }
-
-  .flow-destination--active .flow-destination__node {
-    transform: scale(1.2);
-    border-color: var(--color-signal);
-    background: var(--color-signal);
-  }
-
-  .flow-field__result {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 2rem;
-    min-height: 12rem;
-    border-top: 1px solid var(--color-border);
-    padding: 1.5rem;
-    background: var(--color-background);
-  }
-
-  .flow-field__action {
-    display: flex;
-    min-width: 12rem;
-    flex-direction: column;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 1rem;
-  }
-}
-
-@media (max-width: 767px) {
-  .flow-field__stage {
-    min-height: 22rem;
-  }
-
-  .flow-field__source {
-    left: 1rem;
-    top: 1.35rem;
-    width: calc(100% - 2rem);
-    min-width: 0;
-    transform: none;
-    padding: 0.7rem 1rem;
-  }
-
-  .flow-field__source p {
-    margin-top: 0.55rem;
-    font-size: 0.79rem;
-    line-height: 1.4;
-  }
-
-  .flow-field__source .mt-4 { display: none; }
-
-  .flow-field__paths {
-    top: 7rem;
-    height: calc(100% - 7rem);
-    transform: rotate(90deg) scaleX(0.62) scaleY(1.45);
-  }
-
-  .flow-field__point-wrap {
-    left: 50%;
-    top: 46%;
-  }
-
-  .flow-field__point {
-    width: 3.75rem;
-    height: 3.75rem;
-    box-shadow: 0 0 0 0.5rem var(--color-background);
-  }
-
-  .flow-field__directions {
-    position: absolute;
-    bottom: 1rem;
-    left: 1rem;
-    right: 1rem;
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    border-top: 1px solid var(--color-border);
-  }
-
-  .flow-destination {
-    position: static;
-    width: auto;
-    min-width: 0;
-    min-height: 3.8rem;
-    transform: none;
-    border-top: 0;
-    padding: 0.65rem 0.2rem;
-    place-items: center;
-    text-align: center;
-  }
-
-  .flow-destination:hover,
-  .flow-destination--active {
-    transform: translateY(-0.2rem);
-    border-top: 2px solid var(--color-signal);
-  }
-
-  .flow-destination__node { margin-top: 0; }
-  .flow-destination .flow-label { display: none; }
-  .flow-destination span:last-child span:last-child { font-size: 0.66rem; white-space: normal; line-height: 1.1; }
-
-  .flow-field__result {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 1.25rem;
-    padding: 1.25rem 1rem;
-  }
-
-  .flow-field__action {
-    min-width: 0;
-    align-items: flex-start;
-  }
 }
 
 @utility panel {
