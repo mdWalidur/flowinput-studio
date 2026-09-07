@@ -19,6 +19,21 @@ interface Direction {
   position: string;
 }
 
+const PRODUCT_PLAN_DIRECTION: Direction = {
+  id: "spec",
+  shortLabel: "Product Plan",
+  code: "PLAN",
+  title: "Source-faithful plan",
+  summary: "Requirements and open questions without invented product claims.",
+  output: [
+    { label: "Need", value: "Reduce time lost to missed clinic appointments." },
+    { label: "User", value: "Small-clinic staff managing a daily schedule." },
+    { label: "Open question", value: "Which reminder channel should the first release use?" },
+  ],
+  path: "M365 310 H900",
+  position: "left-[78%] top-[45%]",
+};
+
 const DIRECTIONS: Direction[] = [
   {
     id: "study",
@@ -48,20 +63,7 @@ const DIRECTIONS: Direction[] = [
     path: "M365 310 C480 310 520 202 665 202 H900",
     position: "left-[75%] top-[27%]",
   },
-  {
-    id: "spec",
-    shortLabel: "Product Plan",
-    code: "PLAN",
-    title: "Source-faithful plan",
-    summary: "Requirements and open questions without invented product claims.",
-    output: [
-      { label: "Need", value: "Reduce time lost to missed clinic appointments." },
-      { label: "User", value: "Small-clinic staff managing a daily schedule." },
-      { label: "Open question", value: "Which reminder channel should the first release use?" },
-    ],
-    path: "M365 310 H900",
-    position: "left-[78%] top-[45%]",
-  },
+  PRODUCT_PLAN_DIRECTION,
   {
     id: "markdown",
     shortLabel: "Markdown",
@@ -92,15 +94,13 @@ const DIRECTIONS: Direction[] = [
   },
 ];
 
-const pathFor = (id: GoalId) => DIRECTIONS.find((item) => item.id === id)?.path ?? DIRECTIONS[2].path;
-
 export function FlowField() {
   const [selectedId, setSelectedId] = useState<GoalId>("spec");
   const [hoveredId, setHoveredId] = useState<GoalId | null>(null);
   const [state, setState] = useState<FlowState>("result");
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const timerRef = useRef<number | null>(null);
   const displayId = hoveredId ?? selectedId;
-  const selected = DIRECTIONS.find((item) => item.id === selectedId) ?? DIRECTIONS[2];
+  const selected = DIRECTIONS.find((item) => item.id === selectedId) ?? PRODUCT_PLAN_DIRECTION;
 
   useEffect(() => () => {
     if (timerRef.current) window.clearTimeout(timerRef.current);
