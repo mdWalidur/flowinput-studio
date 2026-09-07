@@ -3,7 +3,6 @@ import { Check } from "lucide-react";
 
 import { GOALS } from "@/domain/goals";
 import type { GoalId } from "@/domain/types";
-import { GoalIcon } from "@/components/goal-icon";
 import { cn } from "@/lib/utils";
 
 export function GoalPicker({
@@ -83,11 +82,10 @@ export function GoalPicker({
           >
             <span className="min-w-0">
               <span className="flex items-center gap-3">
-                <GoalIcon icon={goal.icon} className="size-4 shrink-0" />
                 <span className="text-base font-medium">{compact ? shortLabel(goal.id) : goal.label}</span>
               </span>
               {!compact ? (
-                <span className="mt-1.5 block max-w-2xl pl-7 text-sm leading-6 text-muted-foreground">
+                <span className="mt-1.5 block max-w-2xl text-sm leading-6 text-muted-foreground">
                   {goal.description}
                 </span>
               ) : null}
