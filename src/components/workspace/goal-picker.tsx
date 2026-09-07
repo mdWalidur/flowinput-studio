@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { Check, ArrowRight } from "lucide-react";
+import { Check } from "lucide-react";
 
 import { GOALS } from "@/domain/goals";
 import type { GoalId } from "@/domain/types";
@@ -9,9 +9,11 @@ import { cn } from "@/lib/utils";
 export function GoalPicker({
   value,
   onChange,
+  compact = false,
 }: {
   value: GoalId | null;
   onChange: (id: GoalId) => void;
+  compact?: boolean;
 }) {
   const refs = useRef<Array<HTMLButtonElement | null>>([]);
 
@@ -74,56 +76,25 @@ export function GoalPicker({
               }
             }}
             className={cn(
-              "group grid w-full grid-cols-[44px_minmax(0,1fr)_auto] items-center gap-5 px-2 py-6 text-left transition-colors",
-              "hover:bg-secondary/55",
-              selected && "bg-secondary/70",
+              "group grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-5 py-5 text-left transition-colors",
+              "hover:text-primary",
+              selected && "text-primary",
             )}
           >
-            <span className="font-mono text-xs text-muted-foreground">
-              {String(index + 1).padStart(2, "0")}
-            </span>
-
-            <span className="flex min-w-0 items-center gap-4">
-              <span
-                className={cn(
-                  "flex size-10 shrink-0 items-center justify-center rounded-full border border-border transition-colors",
-                  selected &&
-                    "border-primary bg-primary text-primary-foreground",
-                )}
-              >
-                <GoalIcon
-                  icon={goal.icon}
-                  className="size-4"
-                />
+            <span className="min-w-0">
+              <span className="flex items-center gap-3">
+                <GoalIcon icon={goal.icon} className="size-4 shrink-0" />
+                <span className="text-base font-medium">{compact ? shortLabel(goal.id) : goal.label}</span>
               </span>
-
-              <span className="min-w-0">
-                <span className="block font-display text-xl tracking-tight">
-                  {goal.label}
-                </span>
-
-                <span className="mt-1 block max-w-2xl text-sm leading-6 text-muted-foreground">
+              {!compact ? (
+                <span className="mt-1.5 block max-w-2xl pl-7 text-sm leading-6 text-muted-foreground">
                   {goal.description}
                 </span>
-              </span>
+              ) : null}
             </span>
 
-            <span className="flex items-center gap-3">
-              <span className="hidden text-xs text-muted-foreground sm:block">
-                {goal.tagline}
-              </span>
-
-              {selected ? (
-                <Check
-                  className="size-5 text-primary"
-                  aria-hidden="true"
-                />
-              ) : (
-                <ArrowRight
-                  className="size-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
-                  aria-hidden="true"
-                />
-              )}
+            <span className={cn("size-2 rounded-full border border-border", selected && "border-primary bg-primary")}>
+              <Check className="hidden" aria-hidden="true" />
             </span>
           </button>
         );
@@ -131,3 +102,11 @@ export function GoalPicker({
     </div>
   );
 }
+
+const shortLabel = (id: GoalId) => ({
+  study: "Study",
+  "ai-context": "AI Context",
+  spec: "Product Plan",
+  markdown: "Markdown",
+  prompt: "Prompt",
+})[id];
