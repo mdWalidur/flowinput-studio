@@ -34,11 +34,11 @@ function PrivacyPage() {
             Only what you explicitly save. Saving a piece of work writes a shortened copy of the
             source and the result into your browser's local storage, on your device. Clearing your
             browser data — or using “Clear all” in{" "}
-            <Link to="/my-work" className="text-primary underline underline-offset-2">
+            <Link to="/my-work" className="underline decoration-rule underline-offset-4">
               My work
             </Link>{" "}
             — removes it permanently. Current limits are listed in{" "}
-            <Link to="/settings" className="text-primary underline underline-offset-2">
+            <Link to="/settings" className="underline decoration-rule underline-offset-4">
               settings
             </Link>{" "}
             . There is no backup, because there is no server copy.

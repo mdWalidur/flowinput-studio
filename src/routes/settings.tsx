@@ -21,8 +21,14 @@ const LIMITS = [
 ];
 
 const PLANNED = [
-  ["Accounts", "Sign in so your work follows you between devices instead of living in one browser."],
-  ["Saved to the cloud", "Optional storage for saved items, with clear export and delete controls."],
+  [
+    "Accounts",
+    "Sign in so your work follows you between devices instead of living in one browser.",
+  ],
+  [
+    "Saved to the cloud",
+    "Optional storage for saved items, with clear export and delete controls.",
+  ],
   ["Scanned documents", "Reading text out of scans and photos, handled on a server."],
 ];
 
@@ -33,7 +39,8 @@ function SettingsPage() {
         <header className="pb-5">
           <h1 className="text-2xl">How this version works</h1>
           <p className="measure mt-2 text-sm text-muted-foreground">
-            There isn't much to configure yet, and that's deliberate — nothing here needs an account.
+            There isn't much to configure yet, and that's deliberate — nothing here needs an
+            account.
           </p>
         </header>
 
@@ -42,9 +49,9 @@ function SettingsPage() {
             Where your content lives
           </h2>
           <p className="measure mt-3 text-base leading-7">
-            Files are opened and read inside your browser. Results are worked out on your device with
-            fixed rules — nothing is uploaded and nothing is sent to an AI service. Anything you save
-            stays in this browser only; see{" "}
+            Files are opened and read inside your browser. Results are worked out on your device
+            with fixed rules — nothing is uploaded and nothing is sent to an AI service. Anything
+            you save stays in this browser only; see{" "}
             <Link to="/my-work" className="underline decoration-rule underline-offset-4">
               My work
             </Link>{" "}
@@ -62,7 +69,10 @@ function SettingsPage() {
           </h2>
           <dl className="measure mt-4">
             {LIMITS.map(([label, value]) => (
-              <div key={label} className="flex flex-wrap gap-x-6 border-b border-border py-3 text-base">
+              <div
+                key={label}
+                className="flex flex-wrap gap-x-6 border-b border-border py-3 text-base"
+              >
                 <dt className="text-muted-foreground">{label}</dt>
                 <dd className="ml-auto text-right">{value}</dd>
               </div>

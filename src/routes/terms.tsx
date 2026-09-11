@@ -69,7 +69,7 @@ function TermsPage() {
           </p>
           <p>
             Questions? See{" "}
-            <Link to="/contact" className="text-primary underline underline-offset-2">
+            <Link to="/contact" className="underline decoration-rule underline-offset-4">
               contact and support
             </Link>
             .
