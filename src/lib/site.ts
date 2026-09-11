@@ -10,8 +10,8 @@ export const SITE = {
   tagline: "Where the flow begins.",
   description:
     "FlowPoint is a content preparation workspace that turns source material into clean Markdown, study packs, AI context, product plans and clearer prompts.",
-  baseUrl: (import.meta.env["VITE_SITE_URL"] as string | undefined)?.replace(/\/$/, "") ||
-    FALLBACK_URL,
+  baseUrl:
+    (import.meta.env["VITE_SITE_URL"] as string | undefined)?.replace(/\/$/, "") || FALLBACK_URL,
 } as const;
 
 export const canonical = (path = "/"): string =>
@@ -31,11 +31,7 @@ export const privateRouteMeta = (title: string, description: string) => ({
 });
 
 /** Head meta for a public marketing page. */
-export const publicRouteMeta = (args: {
-  path: string;
-  title: string;
-  description: string;
-}) => ({
+export const publicRouteMeta = (args: { path: string; title: string; description: string }) => ({
   meta: [
     { title: args.title },
     { name: "description", content: args.description },

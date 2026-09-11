@@ -42,7 +42,10 @@ export async function extractPdf(file: File, signal?: AbortSignal): Promise<Extr
       error instanceof Error && /password/i.test(error.message)
         ? "This PDF is password-protected and cannot be read."
         : "This PDF could not be opened. It may be password-protected or damaged.";
-    throw new ExtractionError(message, /password/i.test(String(error)) ? "PASSWORD_PROTECTED" : "CORRUPTED");
+    throw new ExtractionError(
+      message,
+      /password/i.test(String(error)) ? "PASSWORD_PROTECTED" : "CORRUPTED",
+    );
   }
 
   const closable = doc as unknown as { destroy?: () => Promise<void>; cleanup?: () => void };
@@ -71,7 +74,7 @@ export async function extractPdf(file: File, signal?: AbortSignal): Promise<Extr
       for (const item of content.items) {
         if (!("str" in item)) continue;
         line += item.str;
-        if ((item as any).hasEOL) {
+        if ((item as { hasEOL?: boolean }).hasEOL) {
           lines.push(line);
           line = "";
         }

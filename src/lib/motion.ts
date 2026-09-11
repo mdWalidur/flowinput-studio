@@ -1,41 +1,25 @@
-import type { Transition, Variants } from "motion/react";
+import type { Transition } from "motion/react";
 
-export const motionTransition: Transition = {
-  type: "spring",
-  stiffness: 260,
-  damping: 28,
-  mass: 0.7,
+/** One easing and one duration for the whole product. */
+export const EASE = [0.2, 0, 0, 1] as const;
+export const DURATION = 0.18;
+
+export const transition: Transition = {
+  duration: DURATION,
+  ease: EASE,
 };
 
-export const fadeUp: Variants = {
-  hidden: {
-    opacity: 0,
-    y: 18,
-  },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: motionTransition,
-  },
+/** Height/opacity reveal used by every disclosure and result entrance. */
+export const reveal = {
+  initial: { opacity: 0, height: 0 },
+  animate: { opacity: 1, height: "auto" as const },
+  exit: { opacity: 0, height: 0 },
+  transition,
 };
 
-export const fadeIn: Variants = {
-  hidden: {
-    opacity: 0,
-  },
-  visible: {
-    opacity: 1,
-    transition: {
-      duration: 0.22,
-    },
-  },
-};
-
-export const staggerContainer: Variants = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.055,
-    },
-  },
+export const enter = {
+  initial: { opacity: 0, y: 6 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0 },
+  transition,
 };

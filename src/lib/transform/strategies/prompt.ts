@@ -46,8 +46,7 @@ export const promptStrategy: TransformStrategy = {
   format: "txt",
   run: ({ source, options }) => {
     const text = normalizeWhitespace(source.text);
-    const medium =
-      MEDIUM_HINTS.find(([re]) => re.test(text))?.[1] ?? "general";
+    const medium = MEDIUM_HINTS.find(([re]) => re.test(text))?.[1] ?? "general";
     const details = keywords(text, 10);
     const asks = sentences(text);
     const task = (asks[0] ?? text).replace(/^(make|create|write|generate)\s+me\s+/i, "");
@@ -97,7 +96,7 @@ export const promptStrategy: TransformStrategy = {
       "QUALITY BAR",
       "Before answering, silently check the output against every constraint above and fix anything that fails.",
       "",
-      `-- optimized by FlowInput from ${wordCount(text)} words of input --`,
+      `-- optimized by FlowPoint from ${wordCount(text)} words of input --`,
     ];
 
     return {

@@ -1,4 +1,9 @@
-import { MAX_TEXT_CHARS, MAX_FILE_BYTES, validateFile, validateFileSignature } from "@/lib/validation";
+import {
+  MAX_TEXT_CHARS,
+  MAX_FILE_BYTES,
+  validateFile,
+  validateFileSignature,
+} from "@/lib/validation";
 import { ExtractionError, type ExtractionResult } from "./types";
 
 export { ExtractionError } from "./types";
@@ -86,7 +91,10 @@ export async function extractDocument(file: File, signal?: AbortSignal): Promise
       ],
       isTruncated: true,
     };
-    result.changes = [...(result.changes ?? []), "Truncated very long input to the configured ceiling."];
+    result.changes = [
+      ...(result.changes ?? []),
+      "Truncated very long input to the configured ceiling.",
+    ];
   }
 
   result.durationMs = (result.durationMs ?? 0) + (performance.now() - start);

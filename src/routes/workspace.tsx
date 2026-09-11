@@ -1,23 +1,16 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
-import {
-  ArrowRight,
-  Loader2,
-  RotateCcw,
-} from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { toast } from "sonner";
 
 import { PageShell } from "@/components/page-shell";
-import { InputStudio } from "@/components/workspace/input-studio";
+import { DirectionLine } from "@/components/point";
 import { GoalPicker } from "@/components/workspace/goal-picker";
+import { InputStudio } from "@/components/workspace/input-studio";
 import { OptionsPanel } from "@/components/workspace/options-panel";
 import { ResultStudio } from "@/components/workspace/result-studio";
-import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Skeleton } from "@/components/ui/skeleton";
 
-import { goalById, GOALS } from "@/domain/goals";
+import { GOALS, SHORT_GOAL_LABEL, goalById } from "@/domain/goals";
 import {
   DEFAULT_OPTIONS,
   DEFAULT_PROJECT_ID,
@@ -28,175 +21,117 @@ import {
   type WorkItem,
 } from "@/domain/types";
 
-import { TransformError, transform } from "@/lib/transform";
 import { useSaveWorkItem } from "@/hooks/use-work-items";
-import {
-  StorageError,
-  newId,
-} from "@/services/work-item-repository";
-import { privateRouteMeta } from "@/lib/site";
+import { enter, reveal } from "@/lib/motion";
 import { SAMPLES } from "@/lib/sample-content";
+import { privateRouteMeta } from "@/lib/site";
+import { documentTitle, textSource } from "@/lib/source";
+import { TransformError, transform } from "@/lib/transform";
 import { transformOptionsSchema } from "@/lib/validation";
+import { StorageError, newId } from "@/services/work-item-repository";
+import { takeDraft } from "@/services/draft-handoff";
 
 const isGoalId = (value: unknown): value is GoalId =>
   typeof value === "string" && GOALS.some((goal) => goal.id === value);
 
 const isSampleId = (value: unknown): value is string =>
-  typeof value === "string" &&
-  SAMPLES.some((sample) => sample.id === value);
+  typeof value === "string" && SAMPLES.some((sample) => sample.id === value);
 
 export const Route = createFileRoute("/workspace")({
-  validateSearch: (
-    search: Record<string, unknown>,
-  ): { goal?: GoalId; sample?: string } => ({
+  validateSearch: (search: Record<string, unknown>): { goal?: GoalId; sample?: string } => ({
     ...(isGoalId(search["goal"]) ? { goal: search["goal"] } : {}),
-    ...(isSampleId(search["sample"])
-      ? { sample: search["sample"] }
-      : {}),
+    ...(isSampleId(search["sample"]) ? { sample: search["sample"] } : {}),
   }),
 
   head: () =>
     privateRouteMeta(
       "Workspace — FlowPoint",
-      "Bring in your content, choose what you need back, and review the result.",
+      "Bring in your source, choose a direction, and read the result.",
     ),
 
   component: WorkspacePage,
 });
 
 function WorkspacePage() {
-  const { goal: goalFromUrl, sample: sampleFromUrl } = useSearch({
-    from: "/workspace",
-  });
-
+  const { goal: goalFromUrl, sample: sampleFromUrl } = useSearch({ from: "/workspace" });
   const navigate = useNavigate();
 
-  const [source, setSource] =
-    useState<SourceDocument | null>(null);
-  const [goalId, setGoalId] =
-    useState<GoalId | null>(goalFromUrl ?? null);
-  const [options, setOptions] =
-    useState<TransformOptions>(DEFAULT_OPTIONS);
-  const [result, setResult] =
-    useState<TransformResult | null>(null);
+  const [source, setSource] = useState<SourceDocument | null>(null);
+  const [goalId, setGoalId] = useState<GoalId | null>(goalFromUrl ?? null);
+  const [options, setOptions] = useState<TransformOptions>(DEFAULT_OPTIONS);
+  const [result, setResult] = useState<TransformResult | null>(null);
 
   const [working, setWorking] = useState(false);
-  const [processingStage, setProcessingStage] =
-    useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [savedId, setSavedId] = useState<string | null>(null);
 
   const resultRef = useRef<HTMLDivElement>(null);
-
   const saveItem = useSaveWorkItem();
 
+  /** Client-only: pick up a draft prepared on the landing page. */
   useEffect(() => {
-    if (goalFromUrl) {
-      setGoalId(goalFromUrl);
-    }
+    const draft = takeDraft();
+    if (!draft) return;
+    setSource(draft.source);
+    setGoalId(draft.goalId);
+  }, []);
+
+  useEffect(() => {
+    if (goalFromUrl) setGoalId(goalFromUrl);
   }, [goalFromUrl]);
 
   useEffect(() => {
     if (source || !sampleFromUrl) return;
-
-    const sample = SAMPLES.find(
-      (item) => item.id === sampleFromUrl,
-    );
-
-    if (!sample) return;
-
-    const now = new Date().toISOString();
-
-    setSource({
-      id: newId(),
-      kind: "text",
-      name: sample.label,
-      extension: "text",
-      mimeType: "text/plain",
-      sizeBytes: new Blob([sample.text]).size,
-      text: sample.text,
-      engine: "typed",
-      warnings: [],
-      meta: {
-        characters: sample.text.length,
-      },
-      createdAt: now,
-    });
+    const sample = SAMPLES.find((item) => item.id === sampleFromUrl);
+    if (sample) setSource(textSource(sample.text, sample.label));
   }, [sampleFromUrl, source]);
 
   const goal = goalId ? goalById(goalId) : null;
+  const ready = Boolean(source?.text.trim() && goalId);
 
-  const ready = Boolean(
-    source?.text.trim() && goalId,
+  const title = useMemo(
+    () => (goal ? `${documentTitle(source)} — ${goal.label}` : documentTitle(source)),
+    [source, goal],
   );
-
-  const title = useMemo(() => {
-    if (!source || !goal) return "Untitled";
-
-    const stem = source.name.replace(
-      /\.[^.]+$/,
-      "",
-    );
-
-    return `${stem} — ${goal.label}`;
-  }, [source, goal]);
 
   const run = useCallback(() => {
     if (!source || !goalId) return;
 
     setWorking(true);
-    setProcessingStage("Preparing your result");
     setError(null);
     setResult(null);
     setSavedId(null);
 
     window.setTimeout(() => {
       try {
-        const check =
-          transformOptionsSchema.safeParse(options);
+        const check = transformOptionsSchema.safeParse(options);
+        if (!check.success) throw new TransformError("Please review the options and try again.");
 
-        if (!check.success) {
-          throw new TransformError(
-            "Please review your preparation options and try again.",
-          );
-        }
-
-        setProcessingStage("Organizing your content");
-
-        const { instructions, ...validatedOptions } = check.data;
+        const { instructions, ...validated } = check.data;
         const next = transform(goalId, {
           source,
-          options:
-            instructions === undefined
-              ? validatedOptions
-              : { ...validatedOptions, instructions },
+          options: instructions === undefined ? validated : { ...validated, instructions },
         });
 
-        setProcessingStage("Building your output");
         setResult(next);
-
-        window.setTimeout(() => {
-          resultRef.current?.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-          });
-        }, 60);
+        window.setTimeout(
+          () => resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
+          60,
+        );
       } catch (err) {
         setError(
           err instanceof TransformError
             ? err.message
-            : "Something went wrong preparing this. Try again, or adjust your input.",
+            : "Something went wrong preparing this. Try again, or adjust your source.",
         );
       } finally {
         setWorking(false);
-        setProcessingStage(null);
       }
     }, 30);
   }, [goalId, options, source]);
 
   const save = () => {
     if (!source || !goalId || !result) return;
-
     const now = new Date().toISOString();
 
     const item: WorkItem = {
@@ -217,14 +152,12 @@ function WorkspacePage() {
         setSavedId(item.id);
         toast.success("Saved to My work");
       },
-
-      onError: (saveError) => {
+      onError: (saveError) =>
         toast.error(
           saveError instanceof StorageError
             ? saveError.message
-            : "We couldn't save that. Try downloading it instead.",
-        );
-      },
+            : "We couldn't save that. Download it instead.",
+        ),
     });
   };
 
@@ -235,165 +168,121 @@ function WorkspacePage() {
     setResult(null);
     setError(null);
     setSavedId(null);
-
-    void navigate({
-      to: "/workspace",
-      search: {},
-    });
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+    void navigate({ to: "/workspace", search: {} });
+    window.scrollTo({ top: 0 });
   };
 
   return (
     <PageShell>
-      <div className="mx-auto w-full max-w-6xl px-5 py-12 sm:px-8 sm:py-20">
-        <header className="border-b border-border pb-8 sm:pb-10">
-          <div className="flex items-start justify-between gap-6">
-            <div>
-              <h1 className="font-sans text-3xl font-semibold leading-none tracking-normal sm:text-5xl">
-                Workspace
-              </h1>
-            </div>
+      <div className="mx-auto max-w-[72rem] px-6 pb-20 pt-10 sm:px-10">
+        {/* Quiet document header: context, not chrome. */}
+        <header className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2 pb-4">
+          <h1 className="text-xl">{source ? documentTitle(source) : "Untitled source"}</h1>
+
+          <div className="flex items-baseline gap-6">
+            <span className="label">
+              {result
+                ? "Result ready"
+                : working
+                  ? "Working…"
+                  : goal
+                    ? SHORT_GOAL_LABEL[goal.id]
+                    : "No direction"}
+            </span>
 
             {(source || result) && (
-              <Button
+              <button
                 type="button"
-                variant="ghost"
                 onClick={startOver}
-                className="shrink-0"
+                className="text-sm text-muted-foreground underline decoration-rule decoration-1 underline-offset-4 hover:text-foreground"
               >
-                <RotateCcw className="size-4" />
                 Start over
-              </Button>
+              </button>
             )}
           </div>
-
         </header>
 
-        <div className="grid lg:grid-cols-[minmax(0,1.35fr)_minmax(18rem,0.65fr)]">
-            <section className="min-w-0 py-10 lg:border-r lg:border-border lg:pr-12" aria-label="Source">
-              <div>
-              <InputStudio source={source} onChange={(next) => {
-                setSource(next); setResult(null); setSavedId(null); setError(null);
-              }} />
-            </div>
-          </section>
+        <DirectionLine
+          progress={result ? "complete" : working ? "working" : ready ? "selected" : "none"}
+        />
 
-          <div className="border-t border-border py-10 lg:border-t-0 lg:pl-12">
-            <section aria-label="Direction">
-              <div>
-                <GoalPicker value={goalId} onChange={(id) => { setGoalId(id); setResult(null); setSavedId(null); }} compact />
-              </div>
-            </section>
+        <section aria-label="Source" className="pt-8">
+          <InputStudio
+            source={source}
+            onChange={(next) => {
+              setSource(next);
+              setResult(null);
+              setSavedId(null);
+              setError(null);
+            }}
+          />
+        </section>
 
-            <AnimatePresence initial={false}>
-              {goal ? (
-                <motion.section
-                  key={goal.id}
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.18 }}
-                  className="overflow-hidden border-b border-border py-6"
-                  aria-label="Options"
-                >
-                  <OptionsPanel goal={goal} options={options} onChange={setOptions} />
-                </motion.section>
-              ) : null}
-            </AnimatePresence>
+        {/* Control strip: direction, options and the single action, on one line where it fits. */}
+        <section aria-label="Direction" className="rule-top mt-10 pt-5">
+          <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
+            <span className="label">Direction</span>
 
-            <div className="mt-8 flex flex-wrap items-center gap-4">
-            <Button
+            <GoalPicker
+              value={goalId}
+              onChange={(id) => {
+                setGoalId(id);
+                setResult(null);
+                setSavedId(null);
+              }}
+            />
+
+            <button
               type="button"
-              size="lg"
               onClick={run}
               disabled={!ready || working}
-              className="shadow-none"
+              className="ml-auto bg-foreground px-4 py-2 text-sm font-medium text-background transition-opacity duration-200 hover:opacity-85 disabled:opacity-30"
             >
-              {working ? (
-                <Loader2
-                  className="size-4 animate-spin"
-                  aria-hidden="true"
-                />
-              ) : (
-                null
-              )}
-
-              {working
-                ? "Working…"
-                : goal
-                  ? "Make result"
-                  : "Choose a direction"}
-
-              {!working && (
-                <ArrowRight className="size-4" />
-              )}
-            </Button>
-
-            {!ready && (
-              <p className="text-sm text-muted-foreground">
-                Add content and pick what you'd like back.
-              </p>
-            )}
-            </div>
-
-            {error && (
-            <Alert
-              variant="destructive"
-              role="alert"
-              className="mt-8"
-            >
-              <AlertTitle>That didn't work</AlertTitle>
-              <AlertDescription>
-                {error}
-              </AlertDescription>
-            </Alert>
-            )}
+              {working ? "Working…" : "Make result →"}
+            </button>
           </div>
-        </div>
 
-          {working && (
-            <div
-              className="mt-12 border-y border-border py-8"
-              aria-live="polite"
-            >
-              <p className="text-sm font-medium">
-                {processingStage ?? "Working…"}
-              </p>
-
-              <div className="mt-5 space-y-3">
-                <Skeleton className="h-5 w-44" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-11/12" />
-                <Skeleton className="h-4 w-9/12" />
-              </div>
-            </div>
-          )}
-
-          <AnimatePresence mode="wait">
-            {result && source && (
-              <motion.div
-                key={`${result.goalId}-${result.output.length}`}
-                ref={resultRef}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="border-t border-border py-12 sm:py-16"
-              >
-                  <ResultStudio
-                    title={title}
-                    source={source}
-                    result={result}
-                    onSave={save}
-                    saved={Boolean(savedId)}
-                  />
+          <AnimatePresence initial={false}>
+            {goal && goal.options.length > 0 && (
+              <motion.div key={goal.id} {...reveal} className="overflow-hidden">
+                <div className="pt-5">
+                  <OptionsPanel goal={goal} options={options} onChange={setOptions} />
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
+
+          {!ready && (
+            <p className="pt-4 text-sm text-muted-foreground">
+              {source ? "Choose what this should become." : "Add a source above to begin."}
+            </p>
+          )}
+
+          {error && (
+            <p role="alert" className="pt-4 text-sm text-destructive">
+              {error}
+            </p>
+          )}
+        </section>
+
+        <AnimatePresence mode="wait">
+          {result && source && (
+            <motion.div
+              key={`${result.goalId}-${result.output.length}`}
+              ref={resultRef}
+              {...enter}
+              className="rule-top mt-14 pt-10"
+            >
+              <ResultStudio
+                title={title}
+                source={source}
+                result={result}
+                onSave={save}
+                saved={Boolean(savedId)}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </PageShell>
   );

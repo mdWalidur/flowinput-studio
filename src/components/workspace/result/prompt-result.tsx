@@ -1,62 +1,49 @@
 import { useMemo } from "react";
+
 import type { TransformResult } from "@/domain/types";
-import { Separator } from "@/components/ui/separator";
 import { parsePromptOutput } from "./parse-prompt";
+import { Section } from "./section";
 
 interface Props {
   result: TransformResult;
   sourceText: string;
 }
 
-/** Promotes the original-vs-improved comparison from an appendix to the primary layout. */
+/** Original → improved → the parts that make it work. No claims about models. */
 export function PromptResult({ result, sourceText }: Props) {
   const parsed = useMemo(() => parsePromptOutput(result.output), [result.output]);
   const preview =
     sourceText.length > 800 ? `${sourceText.slice(0, 800)}\n\n[truncated for preview]` : sourceText;
 
   return (
-    <div className="space-y-6">
-      <div className="grid gap-3 md:grid-cols-2">
-        <div>
-          <p id="prompt-original-label" className="eyebrow">
-            Original
-          </p>
-          <pre
-            aria-labelledby="prompt-original-label"
-            className="mt-2 whitespace-pre-wrap border-l border-border py-2 pl-4 font-mono text-[12px] leading-relaxed text-muted-foreground"
-          >
-            {preview}
-          </pre>
-        </div>
-        <div>
-          <p id="prompt-improved-label" className="eyebrow">
-            Improved
-          </p>
-          <pre
-            aria-labelledby="prompt-improved-label"
-            className="mt-2 whitespace-pre-wrap border-l border-primary py-2 pl-4 font-mono text-[12px] leading-relaxed"
-          >
-            {result.output}
-          </pre>
-        </div>
-      </div>
+    <div>
+      <Section title="Improved prompt" first>
+        <pre className="whitespace-pre-wrap font-mono text-sm leading-6">{result.output}</pre>
+      </Section>
+
+      <Section title="You started with">
+        <pre className="whitespace-pre-wrap font-mono text-xs leading-6 text-muted-foreground">
+          {preview}
+        </pre>
+      </Section>
 
       {parsed && (
-        <>
-          <Separator />
-          <div className="grid gap-5 sm:grid-cols-2">
+        <Section title="What makes it work">
+          <dl className="space-y-4">
             <Field label="Role" value={parsed.role} />
             <Field label="Task" value={parsed.task} />
             <Field label="Output format" value={parsed.outputFormat} />
             <Field label="Quality bar" value={parsed.qualityBar} />
-          </div>
+          </dl>
+
           {parsed.requiredDetails.length > 0 && (
-            <FieldList label="Required details to honour" items={parsed.requiredDetails} />
+            <FieldList label="Details it must honour" items={parsed.requiredDetails} />
           )}
+
           {parsed.constraints.length > 0 && (
             <FieldList label="Constraints" items={parsed.constraints} />
           )}
-        </>
+        </Section>
       )}
     </div>
   );
@@ -64,19 +51,20 @@ export function PromptResult({ result, sourceText }: Props) {
 
 function Field({ label, value }: { label: string; value: string }) {
   if (!value) return null;
+
   return (
-    <div>
-      <p className="eyebrow">{label}</p>
-      <p className="mt-1.5 text-sm leading-relaxed">{value}</p>
+    <div className="sm:grid sm:grid-cols-[9rem_1fr] sm:gap-4">
+      <dt className="label sm:pt-1.5">{label}</dt>
+      <dd className="text-base leading-7">{value}</dd>
     </div>
   );
 }
 
 function FieldList({ label, items }: { label: string; items: string[] }) {
   return (
-    <div>
-      <p className="eyebrow">{label}</p>
-      <ul className="mt-1.5 list-disc space-y-1 pl-5 text-sm">
+    <div className="mt-6">
+      <p className="label">{label}</p>
+      <ul className="mt-2 list-disc space-y-1 pl-5 text-base">
         {items.map((item, i) => (
           <li key={i}>{item}</li>
         ))}

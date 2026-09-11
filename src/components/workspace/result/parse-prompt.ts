@@ -8,7 +8,7 @@ const LABELS = [
   "QUALITY BAR",
 ] as const;
 
-const FOOTER_PREFIX = "-- optimized by FlowInput";
+const FOOTER_PREFIX = "-- optimized by FlowPoint";
 
 export interface ParsedPrompt {
   role: string;

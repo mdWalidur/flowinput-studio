@@ -1,13 +1,41 @@
 @import "tailwindcss" source(none);
 @source "../src";
-@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
+/* ---------------------------------------------------------------------------
+   FlowPoint design system
+   - One grotesk for everything readable, one mono for source & provenance.
+   - Closed type scale, closed spacing rhythm, hairlines instead of boxes.
+   - Orange is a signal, never decoration.
+--------------------------------------------------------------------------- */
+
 @theme inline {
-  --font-display: "Inter Tight", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Inter Tight", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  /* Closed type scale. Nothing outside this list should be used. */
+  --text-mono: 0.6875rem;
+  --text-mono--line-height: 1.1rem;
+  --text-mono--letter-spacing: 0.08em;
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1.15rem;
+  --text-sm: 0.8125rem;
+  --text-sm--line-height: 1.35rem;
+  --text-base: 0.9375rem;
+  --text-base--line-height: 1.6rem;
+  --text-lg: 1.0625rem;
+  --text-lg--line-height: 1.75rem;
+  --text-xl: 1.375rem;
+  --text-xl--line-height: 1.85rem;
+  --text-2xl: 1.75rem;
+  --text-2xl--line-height: 2.1rem;
+  --text-3xl: 2.25rem;
+  --text-3xl--line-height: 2.45rem;
+  --text-4xl: 3rem;
+  --text-4xl--line-height: 3.05rem;
+  --text-5xl: 4rem;
+  --text-5xl--line-height: 4rem;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -33,121 +61,57 @@
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
 
-  --color-success: var(--success);
-  --color-success-foreground: var(--success-foreground);
-
-  --color-warning: var(--warning);
-  --color-warning-foreground: var(--warning-foreground);
-
-  --color-brand: var(--brand);
-  --color-brand-foreground: var(--brand-foreground);
-
   --color-border: var(--border);
+  --color-rule: var(--rule);
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  --color-surface: var(--surface);
-  --color-surface-2: var(--surface-2);
   --color-signal: var(--signal);
   --color-signal-foreground: var(--signal-foreground);
-  --color-ink-inverse: var(--ink-inverse);
-  --color-quiet: var(--quiet);
 
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
+  --radius-sm: 2px;
+  --radius-md: 2px;
+  --radius-lg: 2px;
+
+  --ease-point: cubic-bezier(0.2, 0, 0, 1);
 }
 
 :root {
-  --background: oklch(0.982 0.004 90);
-  --foreground: oklch(0.205 0.016 165);
+  /* Warm near-white paper, true-neutral ink. */
+  --background: oklch(0.985 0.004 85);
+  --foreground: oklch(0.175 0 0);
 
-  --card: oklch(0.995 0.002 90);
-  --card-foreground: oklch(0.205 0.016 165);
+  --card: oklch(0.985 0.004 85);
+  --card-foreground: oklch(0.175 0 0);
 
-  --popover: oklch(0.995 0.002 90);
-  --popover-foreground: oklch(0.205 0.016 165);
+  --popover: oklch(0.995 0.002 85);
+  --popover-foreground: oklch(0.175 0 0);
 
-  --primary: oklch(0.205 0.016 165);
-  --primary-foreground: oklch(0.99 0.003 90);
+  --primary: oklch(0.175 0 0);
+  --primary-foreground: oklch(0.985 0.004 85);
 
-  --secondary: oklch(0.949 0.007 90);
-  --secondary-foreground: oklch(0.29 0.014 165);
+  --secondary: oklch(0.945 0.003 85);
+  --secondary-foreground: oklch(0.175 0 0);
 
-  --muted: oklch(0.947 0.006 90);
-  --muted-foreground: oklch(0.49 0.011 165);
+  --muted: oklch(0.945 0.003 85);
+  /* 5.4:1 on the paper background. */
+  --muted-foreground: oklch(0.455 0 0);
 
-  --accent: oklch(0.942 0.018 74);
-  --accent-foreground: oklch(0.34 0.045 54);
+  --accent: oklch(0.945 0.003 85);
+  --accent-foreground: oklch(0.175 0 0);
 
-  --destructive: oklch(0.53 0.18 25);
-  --destructive-foreground: oklch(0.99 0.003 90);
+  --destructive: oklch(0.5 0.17 27);
+  --destructive-foreground: oklch(0.985 0.004 85);
 
-  --success: oklch(0.49 0.095 158);
-  --success-foreground: oklch(0.99 0.003 90);
+  /* Hairlines: --rule is the structural line, --border the quieter one. */
+  --rule: oklch(0.84 0.003 85);
+  --border: oklch(0.895 0.003 85);
+  --input: oklch(0.84 0.003 85);
+  --ring: oklch(0.175 0 0);
 
-  --warning: oklch(0.65 0.13 67);
-  --warning-foreground: oklch(0.24 0.026 67);
-
-  --brand: oklch(0.64 0.125 49);
-  --brand-foreground: oklch(0.99 0.003 90);
-
-  --border: oklch(0.88 0.008 90);
-  --input: oklch(0.86 0.008 90);
-  --ring: oklch(0.62 0.145 42);
-
-  --surface: oklch(0.995 0.002 90);
-  --surface-2: oklch(0.947 0.006 90);
-  --signal: oklch(0.62 0.145 42);
-  --signal-foreground: oklch(0.985 0.004 90);
-  --ink-inverse: oklch(0.965 0.006 88);
-  --quiet: oklch(0.925 0.009 88);
-}
-
-.dark {
-  --background: oklch(0.17 0.012 165);
-  --foreground: oklch(0.96 0.004 90);
-
-  --card: oklch(0.21 0.013 165);
-  --card-foreground: oklch(0.96 0.004 90);
-
-  --popover: oklch(0.21 0.013 165);
-  --popover-foreground: oklch(0.96 0.004 90);
-
-  --primary: oklch(0.96 0.004 90);
-  --primary-foreground: oklch(0.17 0.012 165);
-
-  --secondary: oklch(0.25 0.014 165);
-  --secondary-foreground: oklch(0.96 0.004 90);
-
-  --muted: oklch(0.25 0.014 165);
-  --muted-foreground: oklch(0.72 0.009 90);
-
-  --accent: oklch(0.29 0.022 74);
-  --accent-foreground: oklch(0.95 0.015 74);
-
-  --destructive: oklch(0.66 0.18 25);
-  --destructive-foreground: oklch(0.17 0.012 165);
-
-  --success: oklch(0.72 0.105 158);
-  --success-foreground: oklch(0.17 0.012 165);
-
-  --warning: oklch(0.77 0.125 67);
-  --warning-foreground: oklch(0.17 0.012 165);
-
-  --brand: oklch(0.73 0.11 50);
-  --brand-foreground: oklch(0.17 0.012 165);
-
-  --border: oklch(1 0 0 / 13%);
-  --input: oklch(1 0 0 / 16%);
-  --ring: oklch(0.72 0.13 44);
-
-  --surface: oklch(0.21 0.013 165);
-  --surface-2: oklch(0.25 0.014 165);
-  --signal: oklch(0.72 0.13 44);
-  --signal-foreground: oklch(0.17 0.012 165);
-  --ink-inverse: oklch(0.965 0.006 88);
-  --quiet: oklch(0.29 0.014 165);
+  /* The one signal. 4.6:1 as text on paper. */
+  --signal: oklch(0.575 0.175 43);
+  --signal-foreground: oklch(0.985 0.004 85);
 }
 
 @layer base {
@@ -155,14 +119,11 @@
     border-color: var(--color-border);
   }
 
-  html {
-    scroll-behavior: smooth;
-  }
-
   body {
     background: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
+    font-size: var(--text-base);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
@@ -171,9 +132,9 @@
   h2,
   h3,
   h4 {
-    font-family: var(--font-sans);
     font-weight: 500;
-    letter-spacing: 0;
+    letter-spacing: -0.011em;
+    text-wrap: balance;
   }
 
   button,
@@ -185,70 +146,37 @@
   }
 
   ::selection {
-    background: color-mix(in oklab, var(--color-brand) 24%, transparent);
+    background: color-mix(in oklab, var(--color-signal) 20%, transparent);
   }
 
+  /* Deliberate focus: a square ink outline, never a soft glow. */
   :focus-visible {
-    outline: 2px solid var(--color-ring);
+    outline: 1px solid var(--color-foreground);
     outline-offset: 3px;
+  }
+
+  textarea:focus-visible {
+    outline-offset: 2px;
   }
 }
 
-@utility eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0;
+/* Mono label used for provenance, state and section keys. */
+@utility label {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono);
+  line-height: var(--text-mono--line-height);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
   color: var(--color-muted-foreground);
 }
 
-@utility editorial-rule {
-  border-top: 1px solid var(--color-border);
+/* Reading measure for result documents. */
+@utility measure {
+  max-width: 68ch;
 }
 
-@utility field-shell {
-  background: var(--color-surface, var(--color-card));
-  border: 1px solid var(--color-border);
-  border-radius: 1rem;
-}
-
-@utility soft-surface {
-  background: color-mix(in oklab, var(--color-surface, var(--color-card)) 82%, var(--color-background));
-}
-
-@utility result-paper {
-  background: var(--color-card);
-  border-left: 1px solid var(--color-border);
-  border-right: 1px solid var(--color-border);
-}
-
-@utility paper-lines {
-  background-image:
-    linear-gradient(
-      to bottom,
-      transparent 0,
-      transparent 31px,
-      color-mix(in oklab, var(--color-border) 52%, transparent) 31px,
-      color-mix(in oklab, var(--color-border) 52%, transparent) 32px
-    );
-}
-
-@utility text-balance {
-  text-wrap: balance;
-}
-
-@utility panel {
-  background: var(--color-card);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-}
-
-@utility panel-flat {
-  background: var(--color-surface-2);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+@utility rule-top {
+  border-top: 1px solid var(--color-rule);
 }
 
 @utility prose-flow {
@@ -264,10 +192,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-
   *,
   *::before,
   *::after {

@@ -7,9 +7,9 @@ export const Route = createFileRoute("/terms")({
   head: () =>
     publicRouteMeta({
       path: "/terms",
-      title: "Terms of use — FlowInput",
+      title: "Terms of use — FlowPoint",
       description:
-        "The plain-language terms for using FlowInput: what the workspace does, what you are responsible for, and the limits of the service.",
+        "The plain-language terms for using FlowPoint: what the workspace does, what you are responsible for, and the limits of the service.",
     }),
   component: TermsPage,
 });
@@ -19,12 +19,12 @@ function TermsPage() {
     <PageShell>
       <ProsePage
         title="Terms of use"
-        intro="Written in plain language. This is a summary of how FlowInput works and what we each take responsibility for — it is not legal advice."
+        intro="Written in plain language. This is a summary of how FlowPoint works and what we each take responsibility for — it is not legal advice."
         updated="September 2026"
       >
-        <ProseSection heading="What FlowInput is">
+        <ProseSection heading="What FlowPoint is">
           <p>
-            FlowInput is a workspace for reshaping content you already have. You bring text or a
+            FlowPoint is a workspace for reshaping content you already have. You bring text or a
             file, choose what you want back, and the app produces a prepared version you can copy,
             download or save.
           </p>
@@ -42,7 +42,7 @@ function TermsPage() {
           </p>
           <p>
             In return, you confirm that you have the right to use the content you put in. Do not use
-            FlowInput for material you are not allowed to copy, for private information belonging to
+            FlowPoint for material you are not allowed to copy, for private information belonging to
             other people, or for anything unlawful.
           </p>
         </ProseSection>
@@ -56,7 +56,7 @@ function TermsPage() {
 
         <ProseSection heading="No guarantees">
           <p>
-            FlowInput is provided as it is, without a promise of uninterrupted availability or of a
+            FlowPoint is provided as it is, without a promise of uninterrupted availability or of a
             particular result. Output quality depends on the material you provide. Nothing produced
             here should be treated as professional, legal, medical or financial advice.
           </p>
@@ -68,7 +68,11 @@ function TermsPage() {
             accounts and cloud storage are added. Significant changes will be noted on this page.
           </p>
           <p>
-            Questions? See <Link to="/contact" className="text-primary underline underline-offset-2">contact and support</Link>.
+            Questions? See{" "}
+            <Link to="/contact" className="text-primary underline underline-offset-2">
+              contact and support
+            </Link>
+            .
           </p>
         </ProseSection>
       </ProsePage>

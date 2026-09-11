@@ -7,9 +7,9 @@ export const Route = createFileRoute("/contact")({
   head: () =>
     publicRouteMeta({
       path: "/contact",
-      title: "Contact and support — FlowInput",
+      title: "Contact and support — FlowPoint",
       description:
-        "How to reach the FlowInput team about a problem, a file that would not open, a feature request or a security concern.",
+        "How to reach the FlowPoint team about a problem, a file that would not open, a feature request or a security concern.",
     }),
   component: ContactPage,
 });
@@ -37,13 +37,13 @@ function ContactPage() {
     <PageShell>
       <ProsePage
         title="Contact and support"
-        intro="FlowInput is early, and messages from people using it shape what gets built next."
+        intro="FlowPoint is early, and messages from people using it shape what gets built next."
       >
         <div className="grid gap-4 sm:grid-cols-3">
           {CHANNELS.map((channel) => (
             <div key={channel.title} className="panel p-5">
               <channel.icon className="size-5 text-primary" aria-hidden="true" />
-              <h2 className="mt-3 font-display text-base font-medium">{channel.title}</h2>
+              <h2 className="mt-3 text-base font-medium">{channel.title}</h2>
               <p className="mt-1.5 text-sm text-muted-foreground">{channel.body}</p>
             </div>
           ))}

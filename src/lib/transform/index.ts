@@ -1,9 +1,4 @@
-import type {
-  GoalId,
-  SourceDocument,
-  TransformOptions,
-  TransformResult,
-} from "@/domain/types";
+import type { GoalId, SourceDocument, TransformOptions, TransformResult } from "@/domain/types";
 import { readingMinutes, wordCount } from "./text-utils";
 import { markdownStrategy } from "./strategies/markdown";
 import { studyStrategy } from "./strategies/study";
@@ -47,17 +42,13 @@ export function getStrategy(goalId: GoalId): TransformStrategy {
   return strategy;
 }
 
-export function transform(
-  goalId: GoalId,
-  ctx: TransformContext,
-): TransformResult {
+export function transform(goalId: GoalId, ctx: TransformContext): TransformResult {
   const strategy = getStrategy(goalId);
   const text = ctx.source.text.trim();
 
   if (!text) {
     throw new TransformError("There's no readable text in this input yet.");
   }
-
 
   const { output, notes } = strategy.run(ctx);
 

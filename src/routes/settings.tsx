@@ -8,7 +8,7 @@ import { privateRouteMeta } from "@/lib/site";
 export const Route = createFileRoute("/settings")({
   head: () =>
     privateRouteMeta(
-      "Settings — FlowInput",
+      "Settings — FlowPoint",
       "Where your content lives, the current limits, and what is planned next.",
     ),
   component: SettingsPage,
@@ -43,8 +43,8 @@ function SettingsPage() {
   return (
     <PageShell>
       <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
-        <p className="eyebrow">Settings</p>
-        <h1 className="mt-2 font-display text-3xl font-medium tracking-tight sm:text-4xl">
+        <p className="label">Settings</p>
+        <h1 className="mt-2 text-3xl font-medium tracking-tight sm:text-4xl">
           How this version works
         </h1>
         <p className="mt-3 text-muted-foreground">
@@ -55,13 +55,13 @@ function SettingsPage() {
           <div className="flex items-start gap-3">
             <HardDrive className="mt-0.5 size-5 text-primary" aria-hidden="true" />
             <div>
-              <h2 id="storage" className="font-display text-xl font-medium">
+              <h2 id="storage" className="text-xl font-medium">
                 Your content stays with you
               </h2>
               <p className="mt-2 text-sm text-muted-foreground">
                 Files are opened and read inside your browser. Results are worked out on your device
-                with fixed rules. Nothing is uploaded, and nothing is sent to an AI service. Anything
-                you press Save on is stored in this browser only — see{" "}
+                with fixed rules. Nothing is uploaded, and nothing is sent to an AI service.
+                Anything you press Save on is stored in this browser only — see{" "}
                 <Link to="/my-work" className="text-primary underline underline-offset-2">
                   My work
                 </Link>{" "}
@@ -76,7 +76,7 @@ function SettingsPage() {
         </section>
 
         <section className="panel mt-4 p-5 sm:p-6" aria-labelledby="limits">
-          <h2 id="limits" className="font-display text-xl font-medium">
+          <h2 id="limits" className="text-xl font-medium">
             Current limits
           </h2>
           <dl className="mt-4 divide-y divide-border text-sm">
@@ -90,7 +90,7 @@ function SettingsPage() {
         </section>
 
         <section className="mt-4" aria-labelledby="planned">
-          <h2 id="planned" className="font-display text-xl font-medium">
+          <h2 id="planned" className="text-xl font-medium">
             What's planned
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -101,7 +101,7 @@ function SettingsPage() {
               <div key={item.title} className="panel p-4">
                 <item.icon className="size-4 text-brand" aria-hidden="true" />
                 <div className="mt-3 flex items-center gap-2">
-                  <h3 className="font-display text-base font-medium">{item.title}</h3>
+                  <h3 className="text-base font-medium">{item.title}</h3>
                   <Badge variant="outline" className="text-[10px]">
                     Planned
                   </Badge>
