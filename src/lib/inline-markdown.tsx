@@ -8,7 +8,7 @@ export function renderInline(text: string): ReactNode {
   return parts.map((part, i) => {
     if (part.startsWith("`") && part.endsWith("`") && part.length > 2) {
       return (
-        <code key={i} className="rounded bg-surface-2 px-1 py-0.5 font-mono text-[0.9em]">
+        <code key={i} className="border-b border-rule font-mono text-[0.9em]">
           {part.slice(1, -1)}
         </code>
       );

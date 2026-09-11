@@ -4,7 +4,7 @@ import { SiteHeader } from "@/components/site-header";
 
 export function PageShell({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex min-h-dvh flex-col bg-background">
       <SiteHeader />
 
       <main id="main" className="flex-1">
@@ -16,6 +16,7 @@ export function PageShell({ children }: { children: ReactNode }) {
   );
 }
 
+/** Shared layout for the legal and support pages: one measure, one rhythm. */
 export function ProsePage({
   title,
   intro,
@@ -28,44 +29,28 @@ export function ProsePage({
   children: ReactNode;
 }) {
   return (
-    <article className="mx-auto max-w-3xl px-5 py-16 sm:px-8 sm:py-24">
-      <div className="eyebrow">FlowInput</div>
+    <article className="mx-auto max-w-[72rem] px-6 py-16 sm:px-10 sm:py-24">
+      <div className="grid gap-x-8 gap-y-6 lg:grid-cols-12">
+        <div className="lg:col-span-8">
+          <h1 className="text-3xl sm:text-4xl">{title}</h1>
+          <p className="measure mt-5 text-lg text-muted-foreground">{intro}</p>
+        </div>
 
-      <h1 className="mt-6 max-w-2xl text-balance font-display text-4xl tracking-tight sm:text-5xl">
-        {title}
-      </h1>
-
-      <p className="mt-5 max-w-2xl text-lg leading-8 text-muted-foreground">
-        {intro}
-      </p>
-
-      {updated && (
-        <p className="mt-3 text-xs uppercase tracking-[0.14em] text-muted-foreground">
-          Last updated {updated}
-        </p>
-      )}
-
-      <div className="editorial-rule mt-12 space-y-10 pt-10 text-[0.96rem] leading-7">
-        {children}
+        {updated && (
+          <p className="label lg:col-span-3 lg:col-start-10 lg:self-end">Updated {updated}</p>
+        )}
       </div>
+
+      <div className="measure rule-top mt-14 space-y-10 pt-10">{children}</div>
     </article>
   );
 }
 
-export function ProseSection({
-  heading,
-  children,
-}: {
-  heading: string;
-  children: ReactNode;
-}) {
+export function ProseSection({ heading, children }: { heading: string; children: ReactNode }) {
   return (
     <section>
-      <h2 className="font-display text-2xl tracking-tight">{heading}</h2>
-
-      <div className="mt-4 space-y-3 text-muted-foreground">
-        {children}
-      </div>
+      <h2 className="text-lg">{heading}</h2>
+      <div className="mt-3 space-y-3 text-muted-foreground">{children}</div>
     </section>
   );
 }

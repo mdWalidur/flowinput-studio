@@ -1,23 +1,10 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
-import { AlertTriangle, FileText, Info, Lightbulb, Loader2, Upload, X } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea";
+
 import { SAMPLES } from "@/lib/sample-content";
 import { ExtractionError, extractDocument } from "@/lib/parsing";
-import {
-  ACCEPT_ATTRIBUTE,
-  MAX_FILE_BYTES,
-  MAX_TEXT_CHARS,
-  MIN_TEXT_CHARS,
-  pastedTextSchema,
-  extensionOf,
-  formatBytes,
-} from "@/lib/validation";
-import { newId } from "@/services/work-item-repository";
-import { type SourceDocument, type SupportedExtension } from "@/domain/types";
+import { fileSource, textSource } from "@/lib/source";
+import { ACCEPT_ATTRIBUTE, MAX_TEXT_CHARS, MIN_TEXT_CHARS, formatBytes } from "@/lib/validation";
+import { SOURCE_ENGINE_LABEL, type SourceDocument } from "@/domain/types";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -25,70 +12,49 @@ interface Props {
   onChange: (source: SourceDocument | null) => void;
 }
 
-const MIN_IDEA_CHARS = 12;
-
+/**
+ * One source surface: an editor that also accepts files. No tabs, no panels —
+ * the text itself is the interface.
+ */
 export function InputStudio({ source, onChange }: Props) {
-  const [mode, setMode] = useState<"upload" | "paste" | "idea">("paste");
-  const [text, setText] = useState(source && source.kind !== "file" ? source.text : "");
+  const [text, setText] = useState(source?.text ?? "");
   const [error, setError] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
   const [readingName, setReadingName] = useState<string | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+
+  const editorRef = useRef<HTMLTextAreaElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
-  const textareaId = useId();
+  const editorId = useId();
 
   useEffect(() => () => abortRef.current?.abort(), []);
 
-  useEffect(() => {
-    setText(source?.text ?? "");
-  }, [source?.id, source?.text]);
+  /* Adopt text only when the document identity changes (draft, sample, file). */
+  const adoptedId = useRef<string | null>(null);
+  if (source && adoptedId.current !== source.id) {
+    adoptedId.current = source.id;
+    if (source.text !== text) setText(source.text);
+  }
 
-  const minChars = mode === "idea" ? MIN_IDEA_CHARS : MIN_TEXT_CHARS;
-
-  const commitText = useCallback(
-    (next: string, kind: "text" | "idea") => {
+  const commit = useCallback(
+    (next: string, name?: string) => {
       setText(next);
       const trimmed = next.trim();
-      const floor = kind === "idea" ? MIN_IDEA_CHARS : MIN_TEXT_CHARS;
 
-      if (trimmed.length === 0) {
+      if (!trimmed) {
         setError(null);
         onChange(null);
         return;
       }
-      if (trimmed.length < floor) {
-        setError(null); // the counter already explains it; no need to shout
-        onChange(null);
-        return;
-      }
-      if (kind === "text") {
-        const parsed = pastedTextSchema.safeParse(next);
-        if (!parsed.success) {
-          setError(parsed.error.issues[0]?.message ?? "Please add more text.");
-          onChange(null);
-          return;
-        }
-      }
+
       if (trimmed.length > MAX_TEXT_CHARS) {
-        setError(`That's longer than the ${MAX_TEXT_CHARS.toLocaleString()} character limit.`);
+        setError(`That is longer than the ${MAX_TEXT_CHARS.toLocaleString()} character limit.`);
         onChange(null);
         return;
       }
 
       setError(null);
-      onChange({
-        id: newId(),
-        kind,
-        name: kind === "idea" ? "Your idea" : "Pasted text",
-        extension: "text",
-        mimeType: "text/plain",
-        sizeBytes: new Blob([next]).size,
-        text: next,
-        engine: "typed",
-        warnings: [],
-        meta: { characters: trimmed.length },
-        createdAt: new Date().toISOString(),
-      });
+      onChange(trimmed.length < MIN_TEXT_CHARS ? null : textSource(next, name ?? "Pasted text"));
     },
     [onChange],
   );
@@ -101,284 +67,154 @@ export function InputStudio({ source, onChange }: Props) {
 
       setError(null);
       setReadingName(file.name);
+
       try {
         const extracted = await extractDocument(file, controller.signal);
         if (controller.signal.aborted) return;
         setText(extracted.text);
-        onChange({
-          id: newId(),
-          kind: "file",
-          name: file.name,
-          extension: (extensionOf(file.name) || "text") as SupportedExtension,
-          mimeType: file.type || "application/octet-stream",
-          sizeBytes: file.size,
-          text: extracted.text,
-          engine: extracted.engine === "markdown" ? "plain-text" : extracted.engine,
-          warnings: extracted.warnings,
-          meta: {
-            ...(extracted.meta ?? {}),
-            characters: extracted.text.length,
-          },
-          createdAt: new Date().toISOString(),
-        });
-      } catch (err) {
+        onChange(fileSource(file, extracted));
+      } catch (reason) {
         if (controller.signal.aborted) return;
         setError(
-          err instanceof ExtractionError
-            ? err.message
+          reason instanceof ExtractionError
+            ? reason.message
             : "We couldn't read that file. Try another one, or paste the text instead.",
         );
         onChange(null);
       } finally {
         if (!controller.signal.aborted) setReadingName(null);
+        if (fileRef.current) fileRef.current.value = "";
       }
     },
     [onChange],
   );
 
-  const cancelReading = () => {
-    abortRef.current?.abort();
-    setReadingName(null);
-    if (inputRef.current) inputRef.current.value = "";
-  };
-
-  const clear = () => {
-    abortRef.current?.abort();
-    setText("");
-    setError(null);
-    setReadingName(null);
-    onChange(null);
-    if (inputRef.current) inputRef.current.value = "";
-  };
+  const length = text.trim().length;
+  const short = length > 0 && length < MIN_TEXT_CHARS;
 
   return (
-    <div className="space-y-4">
-      <Tabs value={mode} onValueChange={(v) => setMode(v as typeof mode)}>
-        <TabsList className="h-auto w-full justify-start gap-6 rounded-none border-b border-border bg-transparent p-0 sm:w-auto">
-          <TabsTrigger value="paste" className="flex-1 rounded-none border-b-2 border-transparent px-0 pb-3 shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none sm:flex-none">
-            Paste text
-          </TabsTrigger>
-          <TabsTrigger value="upload" className="flex-1 rounded-none border-b-2 border-transparent px-0 pb-3 shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none sm:flex-none">
-            Open a file
-          </TabsTrigger>
-          <TabsTrigger value="idea" className="flex-1 rounded-none border-b-2 border-transparent px-0 pb-3 shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none sm:flex-none">
-            Start with an idea
-          </TabsTrigger>
-        </TabsList>
+    <div>
+      <div className="flex items-baseline justify-between gap-4 pb-3">
+        <span className="label">Source</span>
+        <span className="label truncate">
+          {readingName
+            ? `Reading ${readingName}…`
+            : source
+              ? `${SOURCE_ENGINE_LABEL[source.engine]} · ${formatBytes(source.sizeBytes)}`
+              : "Empty"}
+        </span>
+      </div>
 
-        <TabsContent value="paste" className="mt-4 space-y-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <Label htmlFor={textareaId} className="mr-auto text-sm">
-              Your content
-            </Label>
-            {SAMPLES.map((sample) => (
-              <Button
-                key={sample.id}
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => commitText(sample.text, "text")}
-                title={sample.hint}
-              >
-                Try: {sample.label}
-              </Button>
-            ))}
-          </div>
-          <TextField
-            id={textareaId}
-            value={text}
-            onChange={(v) => commitText(v, "text")}
-            placeholder="Paste notes, an article, a chapter, meeting minutes…"
-            minChars={minChars}
-            rows="min-h-56"
-            help="Nothing leaves your browser."
-            invalid={Boolean(error)}
-          />
-        </TabsContent>
+      <div
+        onDragOver={(event) => {
+          event.preventDefault();
+          setDragging(true);
+        }}
+        onDragLeave={() => setDragging(false)}
+        onDrop={(event) => {
+          event.preventDefault();
+          setDragging(false);
+          const file = event.dataTransfer.files?.[0];
+          if (file) void handleFile(file);
+        }}
+        className={cn(
+          "border-t border-rule transition-colors duration-200",
+          dragging && "border-signal",
+        )}
+      >
+        <textarea
+          ref={editorRef}
+          id={editorId}
+          value={text}
+          onChange={(event) => commit(event.target.value)}
+          spellCheck={false}
+          aria-label="Source material"
+          aria-describedby={`${editorId}-meter`}
+          aria-invalid={Boolean(error)}
+          placeholder={
+            dragging
+              ? "Drop to read this file"
+              : "Paste your notes, a chapter, meeting minutes — or drop a file here"
+          }
+          className="block h-[18rem] w-full resize-y overflow-auto bg-transparent px-0 py-5 font-mono text-sm leading-6 outline-none placeholder:font-sans placeholder:text-base placeholder:text-muted-foreground sm:h-[24rem]"
+        />
+      </div>
 
-        <TabsContent value="idea" className="mt-4 space-y-3">
-          <div className="flex items-start gap-2 border-l border-primary pl-3 text-sm">
-            <Lightbulb className="mt-0.5 size-4 shrink-0 text-brand" aria-hidden="true" />
-            <p className="text-muted-foreground">
-              No document yet? Describe what you have in mind in a sentence or two — this works best
-              with <span className="text-foreground">Improve a Prompt</span> and{" "}
-              <span className="text-foreground">Turn into a Website or App Plan</span>.
-            </p>
-          </div>
-          <TextField
-            id={`${textareaId}-idea`}
-            value={text}
-            onChange={(v) => commitText(v, "idea")}
-            placeholder="A booking tool for small physio clinics that stops late cancellations…"
-            minChars={MIN_IDEA_CHARS}
-            rows="min-h-36"
-            help="A couple of sentences is enough to start."
-            invalid={Boolean(error)}
-          />
-        </TabsContent>
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-border py-3">
+        <button
+          type="button"
+          onClick={() => fileRef.current?.click()}
+          className="text-sm underline decoration-rule decoration-1 underline-offset-4 hover:decoration-foreground"
+        >
+          Open a file
+        </button>
 
-        <TabsContent value="upload" className="mt-4">
-          <div
-            onDragOver={(e) => {
-              e.preventDefault();
-              setDragging(true);
+        {readingName ? (
+          <button
+            type="button"
+            onClick={() => {
+              abortRef.current?.abort();
+              setReadingName(null);
             }}
-            onDragLeave={() => setDragging(false)}
-            onDrop={(e) => {
-              e.preventDefault();
-              setDragging(false);
-              const file = e.dataTransfer.files?.[0];
-              if (file) void handleFile(file);
-            }}
-            className={cn(
-              "border-y border-dashed border-border py-10 text-center transition-colors",
-              dragging && "border-primary bg-primary/5",
-            )}
+            className="text-sm text-muted-foreground underline decoration-rule decoration-1 underline-offset-4 hover:text-foreground"
           >
-            {readingName ? (
-              <div aria-live="polite">
-                <Loader2 className="mx-auto size-6 animate-spin text-primary" aria-hidden="true" />
-                <p className="mt-3 text-sm font-medium">Reading “{readingName}”…</p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Large PDFs take a moment. You can stop at any time.
-                </p>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="mt-4"
-                  onClick={cancelReading}
-                >
-                  <X className="size-4" aria-hidden="true" />
-                  Cancel
-                </Button>
-              </div>
-            ) : (
-              <>
-                <Upload className="mx-auto size-6 text-muted-foreground" aria-hidden="true" />
-                <p className="mt-3 text-sm font-medium">Drop a file here</p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  .txt · .md · .docx · text-based .pdf — up to {formatBytes(MAX_FILE_BYTES)}
-                </p>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="mt-4"
-                  onClick={() => inputRef.current?.click()}
-                >
-                  <FileText className="size-4" aria-hidden="true" />
-                  Choose a file
-                </Button>
-              </>
-            )}
-            <input
-              ref={inputRef}
-              type="file"
-              accept={ACCEPT_ATTRIBUTE}
-              className="sr-only"
-              aria-label="Open a document"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) void handleFile(file);
-              }}
-            />
-          </div>
-          <p className="mt-3 flex items-start gap-2 text-xs text-muted-foreground">
-            <Info className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
-            Word files and PDFs are read here in your browser. A PDF that is a scan or photo has no
-            text to read — that needs OCR, which isn't available yet.
-          </p>
-        </TabsContent>
-      </Tabs>
+            Stop reading
+          </button>
+        ) : (
+          <span className="label">TXT · MD · DOCX · PDF up to {formatBytes(10 * 1024 * 1024)}</span>
+        )}
+
+        <p id={`${editorId}-meter`} className="label ml-auto" aria-live="polite">
+          {short
+            ? `${MIN_TEXT_CHARS - length} more characters needed`
+            : `${length.toLocaleString()} / ${MAX_TEXT_CHARS.toLocaleString()} characters`}
+        </p>
+
+        <input
+          ref={fileRef}
+          type="file"
+          accept={ACCEPT_ATTRIBUTE}
+          className="sr-only"
+          aria-label="Open a document"
+          onChange={(event) => {
+            const file = event.target.files?.[0];
+            if (file) void handleFile(file);
+          }}
+        />
+      </div>
+
+      {/* Designed empty state: an offer, not a blank page. */}
+      {!text && !readingName && (
+        <p className="border-t border-border py-3 text-sm text-muted-foreground">
+          Or start from an example:{" "}
+          {SAMPLES.map((sample, index) => (
+            <span key={sample.id}>
+              {index > 0 ? " · " : ""}
+              <button
+                type="button"
+                onClick={() => commit(sample.text, sample.label)}
+                className="text-foreground underline decoration-rule decoration-1 underline-offset-4 hover:decoration-foreground"
+              >
+                {sample.label}
+              </button>
+            </span>
+          ))}
+        </p>
+      )}
 
       {error && (
-        <Alert variant="destructive" role="alert">
-          <AlertTriangle className="size-4" aria-hidden="true" />
-          <AlertTitle>We couldn't use that</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
+        <p role="alert" className="border-t border-border py-3 text-sm text-destructive">
+          {error}
+        </p>
       )}
 
-      {source && (
-        <div className="space-y-2 border-t border-border pt-3">
-          <div className="flex flex-wrap items-center gap-2 text-sm">
-            <span className="min-w-0 flex-1 truncate font-medium">{source.name}</span>
-            <span className="text-xs text-muted-foreground">
-              {source.text.trim().split(/\s+/).length.toLocaleString()} words
-            </span>
-            <Button type="button" variant="ghost" size="sm" onClick={clear}>
-              <X className="size-4" aria-hidden="true" />
-              Replace
-            </Button>
-          </div>
-          <details className="text-xs text-muted-foreground">
-            <summary className="cursor-pointer select-none">Source details</summary>
-            <div className="mt-2 grid gap-1 sm:grid-cols-2">
-              <p>Type: {source.extension.toUpperCase()}</p>
-              <p>Size: {formatBytes(source.sizeBytes)}</p>
-              {typeof source.meta?.["pages"] === "number" && <p>Pages: {source.meta["pages"]}</p>}
-              {typeof source.meta?.["characters"] === "number" && (
-                <p>Extracted characters: {source.meta["characters"].toLocaleString()}</p>
-              )}
-            </div>
-          </details>
-          {source.warnings.length > 0 && (
-            <ul className="space-y-1 text-xs text-muted-foreground">
-              {source.warnings.map((warning) => (
-                <li key={warning} className="flex gap-1.5">
-                  <AlertTriangle
-                    className="mt-0.5 size-3 shrink-0 text-warning"
-                    aria-hidden="true"
-                  />
-                  <span>{warning}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+      {source && source.warnings.length > 0 && (
+        <ul className="border-t border-border py-3 text-sm text-muted-foreground">
+          {source.warnings.map((warning) => (
+            <li key={warning}>{warning}</li>
+          ))}
+        </ul>
       )}
     </div>
-  );
-}
-
-function TextField({
-  id,
-  value,
-  onChange,
-  placeholder,
-  minChars,
-  rows,
-  help,
-  invalid,
-}: {
-  id: string;
-  value: string;
-  onChange: (value: string) => void;
-  placeholder: string;
-  minChars: number;
-  rows: string;
-  help: string;
-  invalid: boolean;
-}) {
-  const length = value.trim().length;
-  const short = length > 0 && length < minChars;
-
-  return (
-    <>
-      <Textarea
-        id={id}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        className={cn("resize-y rounded-none border-x-0 border-t-0 px-0 text-sm leading-relaxed shadow-none focus-visible:ring-0", rows)}
-        aria-describedby={`${id}-help`}
-        aria-invalid={invalid || short}
-      />
-      <p id={`${id}-help`} className="text-xs text-muted-foreground">
-        {short
-          ? `${minChars - length} more character${minChars - length === 1 ? "" : "s"} to go.`
-          : `${value.length.toLocaleString()} / ${MAX_TEXT_CHARS.toLocaleString()} characters. ${help}`}
-      </p>
-    </>
   );
 }

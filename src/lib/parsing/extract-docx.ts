@@ -45,7 +45,6 @@ export async function extractDocx(file: File, signal?: AbortSignal): Promise<Ext
   }
 }
 
-
 function cleanup(markdown: string): string {
   return markdown
     .replace(/!\[[^\]]*\]\([^)]*\)/g, "") // drop embedded image data URLs

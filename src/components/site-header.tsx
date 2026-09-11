@@ -1,13 +1,7 @@
 import { Link } from "@tanstack/react-router";
-import { Menu } from "lucide-react";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+
+import { Point } from "@/components/point";
 
 const NAV = [
   { to: "/workspace", label: "Workspace" },
@@ -22,75 +16,69 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-border bg-background">
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-3 focus:py-2 focus:text-sm focus:text-primary-foreground"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:bg-foreground focus:px-3 focus:py-2 focus:text-sm focus:text-background"
       >
         Skip to content
       </a>
 
-      <div className="mx-auto flex h-16 max-w-6xl items-center px-5 sm:px-8">
-        <Link
-          to="/"
-          aria-label="FlowPoint home"
-          className="text-base font-semibold"
-        >
-          FlowPoint
+      <div className="mx-auto flex h-14 max-w-[72rem] items-center px-6 sm:px-10">
+        <Link to="/" aria-label="FlowPoint home" className="flex items-baseline gap-1.5">
+          <span className="text-sm font-medium tracking-tight">FlowPoint</span>
+          <Point state="active" />
         </Link>
 
-        <nav
-          aria-label="Main"
-          className="ml-auto hidden items-center gap-7 md:flex"
-        >
+        <nav aria-label="Main" className="ml-auto hidden items-center gap-8 sm:flex">
           {NAV.map((item) => (
             <Link
               key={item.to}
               to={item.to}
-              className="relative py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+              className="flex items-center gap-2 text-sm text-muted-foreground transition-colors duration-200 hover:text-foreground"
+              activeProps={{
+                className: "flex items-center gap-2 text-sm font-medium text-foreground",
+              }}
+            >
+              {({ isActive }: { isActive: boolean }) => (
+                <>
+                  <Point
+                    state={isActive ? "active" : "idle"}
+                    className={isActive ? "" : "opacity-0"}
+                  />
+                  {item.label}
+                </>
+              )}
+            </Link>
+          ))}
+        </nav>
+
+        <button
+          type="button"
+          aria-expanded={open}
+          aria-controls="mobile-nav"
+          onClick={() => setOpen((value) => !value)}
+          className="ml-auto text-sm text-muted-foreground sm:hidden"
+        >
+          {open ? "Close" : "Menu"}
+        </button>
+      </div>
+
+      {open && (
+        <nav id="mobile-nav" aria-label="Main" className="border-t border-border sm:hidden">
+          {NAV.map((item) => (
+            <Link
+              key={item.to}
+              to={item.to}
+              onClick={() => setOpen(false)}
+              className="block border-b border-border px-6 py-4 text-sm text-muted-foreground last:border-b-0"
               activeProps={{
                 className:
-                  "relative py-2 text-sm text-foreground after:absolute after:-bottom-1 after:left-0 after:h-px after:w-full after:bg-brand",
+                  "block border-b border-border px-6 py-4 text-sm font-medium text-foreground last:border-b-0",
               }}
             >
               {item.label}
             </Link>
           ))}
-
         </nav>
-
-        <div className="ml-auto md:hidden">
-          <Sheet open={open} onOpenChange={setOpen}>
-            <SheetTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label="Open menu"
-                className=""
-              >
-                <Menu className="size-5" />
-              </Button>
-            </SheetTrigger>
-
-            <SheetContent side="right" className="w-[20rem]">
-              <SheetTitle className="text-lg font-semibold">
-                FlowPoint
-              </SheetTitle>
-
-              <nav className="mt-8 flex flex-col">
-                {NAV.map((item) => (
-                  <Link
-                    key={item.to}
-                    to={item.to}
-                    onClick={() => setOpen(false)}
-                    className="border-b border-border py-4 text-lg"
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-              </nav>
-
-            </SheetContent>
-          </Sheet>
-        </div>
-      </div>
+      )}
     </header>
   );
 }

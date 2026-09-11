@@ -34,18 +34,16 @@ export const studyStrategy: TransformStrategy = {
       .map((l) => stripBullet(l))
       .slice(0, options.detail === "detailed" ? 18 : 10);
 
-    const questions = (outline.length ? outline : summaryPoints.slice(0, 5)).map(
-      (topic, i) => {
-        const stem = topic.replace(/[.:]$/, "");
-        const templates = [
-          `Explain ${stem.toLowerCase()} in your own words.`,
-          `What happens if ${stem.toLowerCase()} is disrupted or removed?`,
-          `Give a concrete example of ${stem.toLowerCase()}.`,
-          `How does ${stem.toLowerCase()} relate to the rest of this material?`,
-        ];
-        return templates[i % templates.length];
-      },
-    );
+    const questions = (outline.length ? outline : summaryPoints.slice(0, 5)).map((topic, i) => {
+      const stem = topic.replace(/[.:]$/, "");
+      const templates = [
+        `Explain ${stem.toLowerCase()} in your own words.`,
+        `What happens if ${stem.toLowerCase()} is disrupted or removed?`,
+        `Give a concrete example of ${stem.toLowerCase()}.`,
+        `How does ${stem.toLowerCase()} relate to the rest of this material?`,
+      ];
+      return templates[i % templates.length];
+    });
 
     const out: string[] = [
       `# Study pack — ${title}`,

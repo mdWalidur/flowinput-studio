@@ -8,8 +8,7 @@ export const normalizeWhitespace = (text: string): string =>
     .replace(/\n{3,}/g, "\n\n")
     .trim();
 
-export const words = (text: string): string[] =>
-  text.split(/[^A-Za-z0-9'’-]+/).filter(Boolean);
+export const words = (text: string): string[] => text.split(/[^A-Za-z0-9'’-]+/).filter(Boolean);
 
 export const wordCount = (text: string): number => words(text).length;
 
@@ -64,8 +63,7 @@ export function summarize(text: string, count: number): string[] {
   const scored = all.map((s, index) => {
     const ws = words(s);
     const score =
-      ws.reduce((acc, w) => acc + (weights.get(w.toLowerCase()) ?? 0), 0) /
-      Math.max(6, ws.length);
+      ws.reduce((acc, w) => acc + (weights.get(w.toLowerCase()) ?? 0), 0) / Math.max(6, ws.length);
     return { s, index, score };
   });
   return scored
@@ -86,7 +84,10 @@ export const titleCase = (text: string): string =>
 export function deriveTitle(text: string, fallback = "Untitled input"): string {
   const first = lines(text)[0];
   if (!first) return fallback;
-  const clean = first.replace(/^#+\s*/, "").replace(/[*_`>]/g, "").trim();
+  const clean = first
+    .replace(/^#+\s*/, "")
+    .replace(/[*_`>]/g, "")
+    .trim();
   if (!clean) return fallback;
   const short = clean.length > 68 ? `${clean.slice(0, 65).trimEnd()}…` : clean;
   return /[a-z]/.test(short) ? short : titleCase(short);
@@ -119,9 +120,4 @@ export function looksLikeHeading(line: string): boolean {
 }
 
 export const metadataBlock = (fields: Record<string, string | number>): string =>
-  [
-    "---",
-    ...Object.entries(fields).map(([k, v]) => `${k}: ${v}`),
-    "---",
-    "",
-  ].join("\n");
+  ["---", ...Object.entries(fields).map(([k, v]) => `${k}: ${v}`), "---", ""].join("\n");

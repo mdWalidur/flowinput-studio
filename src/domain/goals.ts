@@ -90,3 +90,12 @@ export const GOALS: GoalDefinition[] = [
 
 export const goalById = (id: GoalId): GoalDefinition =>
   GOALS.find((g) => g.id === id) ?? (GOALS[0] as GoalDefinition);
+
+/** Compact names used in the direction rails. */
+export const SHORT_GOAL_LABEL: Record<GoalId, string> = {
+  study: "Study",
+  "ai-context": "AI Context",
+  spec: "Product Plan",
+  markdown: "Markdown",
+  prompt: "Prompt",
+};

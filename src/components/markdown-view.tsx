@@ -59,7 +59,7 @@ function renderBlocks(markdown: string): ReactNode[] {
       }
       index++;
       out.push(
-        <pre key={key++} className="overflow-x-auto rounded-lg bg-surface-2 p-3 text-[13px]">
+        <pre key={key++} className="my-4 overflow-x-auto border-l border-rule pl-4 py-1 text-sm">
           <code className="font-mono">{body.join("\n")}</code>
         </pre>,
       );
@@ -76,7 +76,7 @@ function renderBlocks(markdown: string): ReactNode[] {
         index++;
       }
       out.push(
-        <div key={key++} className="my-4 overflow-x-auto rounded-lg border border-border">
+        <div key={key++} className="my-5 overflow-x-auto border-y border-border">
           <Table>
             <TableHeader>
               <TableRow>
@@ -116,10 +116,10 @@ function renderBlocks(markdown: string): ReactNode[] {
       const content = inline(heading[2] ?? "");
       const cls =
         level === 1
-          ? "mt-6 font-display text-xl font-semibold first:mt-0 sm:text-2xl"
+          ? "mt-8 text-xl first:mt-0"
           : level === 2
-            ? "mt-6 font-display text-lg font-semibold first:mt-0"
-            : "mt-5 font-display text-base font-semibold first:mt-0";
+            ? "mt-7 text-lg first:mt-0"
+            : "mt-6 text-base font-medium first:mt-0";
       const Tag = `h${Math.min(level + 1, 6)}` as unknown as "h2";
       out.push(
         <Tag key={key++} className={cls}>
@@ -138,10 +138,7 @@ function renderBlocks(markdown: string): ReactNode[] {
         index++;
       }
       out.push(
-        <blockquote
-          key={key++}
-          className="my-4 border-l-2 border-primary/50 pl-4 text-muted-foreground"
-        >
+        <blockquote key={key++} className="my-4 border-l border-rule pl-4 text-muted-foreground">
           {body.map((b, i) => (
             <p key={i}>{inline(b)}</p>
           ))}
@@ -165,9 +162,7 @@ function renderBlocks(markdown: string): ReactNode[] {
         <ListTag
           key={key++}
           className={
-            ordered
-              ? "my-3 list-decimal space-y-1.5 pl-5"
-              : "my-3 list-disc space-y-1.5 pl-5 marker:text-primary/60"
+            ordered ? "my-3 list-decimal space-y-1.5 pl-5" : "my-3 list-disc space-y-1.5 pl-5"
           }
         >
           {items.map((item, i) => (
@@ -191,7 +186,7 @@ function renderBlocks(markdown: string): ReactNode[] {
       index++;
     }
     out.push(
-      <p key={key++} className="my-3 leading-relaxed">
+      <p key={key++} className="my-4 leading-7">
         {inline(paragraph.join(" "))}
       </p>,
     );

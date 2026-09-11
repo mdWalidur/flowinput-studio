@@ -28,7 +28,10 @@ export const markdownStrategy: TransformStrategy = {
       }
 
       if (looksLikeHeading(line)) {
-        const clean = line.replace(/^#{1,6}\s*/, "").replace(/:$/, "").trim();
+        const clean = line
+          .replace(/^#{1,6}\s*/, "")
+          .replace(/:$/, "")
+          .trim();
         const level = clean.length <= 32 ? "##" : "###";
         if (body.length) body.push("");
         body.push(`${level} ${clean}`);
@@ -38,7 +41,11 @@ export const markdownStrategy: TransformStrategy = {
 
       if (isBullet(line)) {
         if (previousWasHeading) body.push("");
-        body.push(`- ${stripBullet(line).replace(/\s{2,}/g, " ").trim()}`);
+        body.push(
+          `- ${stripBullet(line)
+            .replace(/\s{2,}/g, " ")
+            .trim()}`,
+        );
         previousWasHeading = false;
         return;
       }
@@ -55,12 +62,17 @@ export const markdownStrategy: TransformStrategy = {
           title: `"${title.replace(/"/g, "'")}"`,
           source: source.name,
           words: wordCount(text),
-          generated_by: "FlowInput",
+          generated_by: "FlowPoint",
         }),
       );
     }
     parts.push(`# ${title}`, "");
-    parts.push(body.join("\n").replace(/\n{3,}/g, "\n\n").trim());
+    parts.push(
+      body
+        .join("\n")
+        .replace(/\n{3,}/g, "\n\n")
+        .trim(),
+    );
 
     if (options.instructions?.trim()) {
       parts.push("", "> **Author note:** " + options.instructions.trim());

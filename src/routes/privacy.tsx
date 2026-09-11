@@ -6,9 +6,9 @@ export const Route = createFileRoute("/privacy")({
   head: () =>
     publicRouteMeta({
       path: "/privacy",
-      title: "Privacy notice — FlowInput",
+      title: "Privacy notice — FlowPoint",
       description:
-        "How FlowInput handles your content: files and text are read in your browser, saved work stays on your device, and nothing is uploaded in this version.",
+        "How FlowPoint handles your content: files and text are read in your browser, saved work stays on your device, and nothing is uploaded in this version.",
     }),
   component: PrivacyPage,
 });
@@ -18,7 +18,7 @@ function PrivacyPage() {
     <PageShell>
       <ProsePage
         title="Privacy notice"
-        intro="The short version: in this version of FlowInput, your content is read inside your browser and stays on your device."
+        intro="The short version: in this version of FlowPoint, your content is read inside your browser and stays on your device."
         updated="September 2026"
       >
         <ProseSection heading="What happens to a file you open">
@@ -34,11 +34,11 @@ function PrivacyPage() {
             Only what you explicitly save. Saving a piece of work writes a shortened copy of the
             source and the result into your browser's local storage, on your device. Clearing your
             browser data — or using “Clear all” in{" "}
-            <Link to="/my-work" className="text-primary underline underline-offset-2">
+            <Link to="/my-work" className="underline decoration-rule underline-offset-4">
               My work
             </Link>{" "}
             — removes it permanently. Current limits are listed in{" "}
-            <Link to="/settings" className="text-primary underline underline-offset-2">
+            <Link to="/settings" className="underline decoration-rule underline-offset-4">
               settings
             </Link>{" "}
             . There is no backup, because there is no server copy.
@@ -63,7 +63,7 @@ function PrivacyPage() {
 
         <ProseSection heading="Sensitive material">
           <p>
-            Because processing happens locally, FlowInput is a reasonable place for ordinary working
+            Because processing happens locally, FlowPoint is a reasonable place for ordinary working
             documents. Even so, use your own judgement with confidential or personal data — a shared
             or public computer keeps browser storage behind after you leave.
           </p>

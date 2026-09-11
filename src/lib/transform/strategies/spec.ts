@@ -63,7 +63,7 @@ export const specStrategy: TransformStrategy = {
     const out: string[] = [
       `# Product specification — ${title}`,
       "",
-      "> Draft generated from your notes by FlowInput. Anything marked `ASSUMPTION`",
+      "> Draft generated from your notes by FlowPoint. Anything marked `ASSUMPTION`",
       "> was inferred and should be confirmed before build.",
       "",
       "## 1. Problem statement",
@@ -88,15 +88,15 @@ export const specStrategy: TransformStrategy = {
       "",
       "## 5. Proposed screens",
       "",
-      ...(pages.length ? pages : ["Home", "Main workspace", "Settings"]).map(
-        (p) => `- ${p}`,
-      ),
+      ...(pages.length ? pages : ["Home", "Main workspace", "Settings"]).map((p) => `- ${p}`),
       "",
       "## 6. Candidate data model",
       "",
       "| Entity | Purpose | Notes |",
       "| --- | --- | --- |",
-      ...entities.map((e) => `| ${e} | Derived from source terminology | \`ASSUMPTION\` fields TBD |`),
+      ...entities.map(
+        (e) => `| ${e} | Derived from source terminology | \`ASSUMPTION\` fields TBD |`,
+      ),
       "",
       "## 7. Non-functional requirements",
       "",
